@@ -20,7 +20,7 @@ function AgeVerificationModal() {
   }
 
   const handleReject = () => {
-    window.location.href = 'https://www.tiktok.com/@whiteoid3'
+    window.location.href = 'https://vt.tiktok.com/ZSamydNBd/'
   }
 
   return (

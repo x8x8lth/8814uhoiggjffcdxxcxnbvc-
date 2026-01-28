@@ -1,4 +1,5 @@
-const API_KEY = "52d591130a3b5b14c3d12d036b7e743f"; // Можеш замінити на свій
+// Ключ береться з .env
+const API_KEY = import.meta.env.VITE_NOVA_POSHTA_API_KEY; 
 const API_URL = "https://api.novaposhta.ua/v2.0/json/";
 
 export const searchCity = async (cityName) => {
@@ -20,10 +21,9 @@ export const searchCity = async (cityName) => {
   
   const data = await response.json();
   if (data.success && data.data[0]) {
-    // Нова Пошта повертає купу всього, нам треба тільки назви і Ref (ID міста)
     return data.data[0].Addresses.map(item => ({
-      label: item.Present, // Наприклад "м. Київ, Київська обл."
-      value: item.DeliveryCity // ID міста для пошуку відділень
+      label: item.Present, 
+      value: item.DeliveryCity 
     }));
   }
   return [];
@@ -49,8 +49,8 @@ export const getWarehouses = async (cityRef) => {
   const data = await response.json();
   if (data.success) {
     return data.data.map(item => ({
-      label: item.Description, // "Відділення №1: вул. ..."
-      value: item.Description  // Зберігаємо назву
+      label: item.Description, 
+      value: item.Description 
     }));
   }
   return [];

@@ -7,7 +7,6 @@ import { Link as RouterLink } from 'react-router-dom'
 import { FaTelegram, FaInstagram, FaTiktok, FaArrowRight } from 'react-icons/fa'
 import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi'
 
-// Рожевий колір з логотипу
 const PINK_COLOR = "#FF0080"
 const PINK_HOVER = "#D6006B"
 
@@ -16,7 +15,6 @@ function Footer() {
   const [loading, setLoading] = useState(false)
   const toast = useToast()
 
-  // 👇 ФУНКЦІЯ ПІДПИСКИ (ВІДПРАВЛЯЄ ТОБІ В ТЕЛЕГРАМ)
   const handleSubscribe = async () => {
     if (!email || !email.includes('@')) {
       toast({ title: "Введіть коректний Email", status: "warning", position: "bottom-right" })
@@ -25,22 +23,21 @@ function Footer() {
 
     setLoading(true)
 
-    // 👇 ВСТАВ СЮДИ ТІ Ж ДАНІ, ЩО І В КОШИКУ (CartPage)
-    const TELEGRAM_TOKEN = "ВАШ_ТОКЕН"; 
-    const CHAT_ID = "ВАШ_ID"; 
+    // 👇 БЕРЕМО ДАНІ З .env
+    const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
+    const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
     const text = `🚀 *НОВИЙ ПІДПИСНИК!*\n\n📧 Email: \`${email}\``
 
     try {
-      // Якщо ти ще не вставив токен, цей запит не спрацює, але для користувача виглядатиме ок
-      if (TELEGRAM_TOKEN !== "ВАШ_ТОКЕН") {
+      if (TELEGRAM_TOKEN && CHAT_ID) {
           await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
           });
       } else {
-          console.log("Токен не вставлено, імітуємо успіх");
+          console.log("Токен не налаштовано, імітуємо успіх");
       }
 
       toast({ 
@@ -51,7 +48,7 @@ function Footer() {
         isClosable: true,
         position: "bottom-right"
       })
-      setEmail('') // Очищаємо поле
+      setEmail('') 
 
     } catch (error) {
       console.error(error)
@@ -124,7 +121,6 @@ function Footer() {
             </Text>
             <Stack direction="row" spacing={4}>
               <SocialBtn icon={<FaTelegram />} href="https://t.me/Manager_Smoke1" />
-              {/* Виправив посилання на інстаграм */}
               <SocialBtn icon={<FaInstagram />} href="https://www.instagram.com/smoke_house.vyshneve/" />
               <SocialBtn icon={<FaTiktok />} href="https://www.tiktok.com/@housee.shop" />
             </Stack>

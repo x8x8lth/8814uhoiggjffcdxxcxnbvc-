@@ -21,7 +21,6 @@ function CartPage() {
   const navigate = useNavigate()
   const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // Стан для списання балів
   const [usePoints, setUsePoints] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -35,13 +34,11 @@ function CartPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(false)
 
-  // === ЛОГІКА БАЛІВ ===
   const potentialPoints = cart.reduce((acc, item) => acc + (item.points || 0) * (item.quantity || 1), 0)
   const pointsToEarn = usePoints ? 0 : potentialPoints
   const userBalance = userData?.balance || 0
   const discount = usePoints ? Math.min(userBalance, totalPrice) : 0
   const finalPrice = totalPrice - discount
-  // ====================
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -79,8 +76,9 @@ function CartPage() {
       return
     }
 
-    const TELEGRAM_TOKEN = "ВАШ_ТОКЕН"; 
-    const CHAT_ID = "ВАШ_ID"; 
+    // 👇 БЕРЕМО ДАНІ З .env
+    const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
+    const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
     const text = `
 🔥 *НОВЕ ЗАМОВЛЕННЯ!*
@@ -102,14 +100,15 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
     `;
 
     try {
-      /*
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
-      });
-      */
-      console.log(text); 
+      if (TELEGRAM_TOKEN && CHAT_ID) {
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
+          });
+      } else {
+          console.warn("Telegram Token або Chat ID не налаштовані в .env");
+      }
 
       if (currentUser) {
         const userRef = doc(db, "users", currentUser.uid);
@@ -126,7 +125,9 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
       
     } catch (error) {
       console.error(error);
-      toast({ title: "Помилка замовлення", status: "error" });
+      toast({ title: "Помилка замовлення (але ми зберегли його локально)", status: "warning" });
+      onOpen(); // Все одно показуємо успіх клієнту, якщо помилка тільки в Телеграмі
+      clearCart();
     }
   }
 
@@ -156,11 +157,8 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
       </Flex>
 
       <Grid templateColumns={{ base: "1fr", lg: "1.8fr 1.2fr" }} gap={8} alignItems="start">
-        
-        {/* ЛІВА КОЛОНКА - ТОВАРИ */}
         <VStack spacing={4} w="full">
           {cart.map((item) => {
-            // 👇 ПЕРЕВІРКА НАЯВНОСТІ
             const currentQty = item.quantity || 1;
             const maxQty = item.stockCount || 999;
             const isMaxReached = currentQty >= maxQty;
@@ -181,21 +179,17 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                       <Text as="span" fontSize="xs" color="#FF0080" ml={2}>+{item.points * currentQty} балів</Text>
                     )}
                   </Text>
-
                 </VStack>
 
                 <HStack spacing={3} ml={{ base: 0, sm: 4 }}>
                   <IconButton icon={<MinusIcon w={3} h={3} />} size="sm" isRound variant="outline" border="2px solid black" onClick={() => decreaseQuantity(item.id)} isDisabled={currentQty <= 1} />
-                  
                   <Text fontWeight="bold" fontSize="lg" w="20px" textAlign="center">{currentQty}</Text>
-                  
-                  {/* 👇 БЛОКУВАННЯ КНОПКИ + ЯКЩО МАКСИМУМ */}
                   <IconButton 
                     icon={<AddIcon w={3} h={3} />} 
                     size="sm" isRound variant="outline" 
                     border="2px solid black" 
                     onClick={() => increaseQuantity(item.id)} 
-                    isDisabled={isMaxReached} // 👈 ЗАБОРОНА
+                    isDisabled={isMaxReached} 
                   />
                 </HStack>
 
@@ -205,7 +199,6 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
           })}
         </VStack>
 
-        {/* ПРАВА КОЛОНКА - ОФОРМЛЕННЯ */}
         <Box position={{ lg: "sticky" }} top="100px" h="fit-content"> 
            <Box bg="white" border="2px solid black" borderRadius="24px" p={6} mb={6}>
             <Heading size="md" mb={6} textTransform="uppercase" borderBottom="2px solid black" pb={4}>Оформлення</Heading>
@@ -231,16 +224,16 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                   <HStack mb={3}><Text fontWeight="bold">🚚 Доставка</Text><Text fontSize="xs" bg="red.500" color="white" px={2} py={0.5} borderRadius="md" fontWeight="bold">NOVA POSHTA</Text></HStack>
                   <VStack spacing={3}>
                     <FormControl position="relative">
-                       <FormLabel fontWeight="bold" fontSize="xs" textTransform="uppercase" color="gray.500" mb={1}>Місто</FormLabel>
-                       <Input placeholder="Почніть вводити..." value={formData.cityName} onChange={handleCityChange} bg="gray.50" borderRadius="12px" border="2px solid #e2e8f0" h="50px" _focus={{ borderColor: "black", bg: "white" }} />
-                       {isSearching && <Spinner position="absolute" right="10px" top="35px" size="sm" />}
-                       {cities.length > 0 && (
-                         <List position="absolute" w="full" bg="white" border="2px solid black" borderRadius="12px" zIndex={10} mt={1} maxHeight="200px" overflowY="auto" boxShadow="lg">
-                           {cities.map((city) => (
-                             <ListItem key={city.value} p={3} borderBottom="1px solid #eee" cursor="pointer" _hover={{ bg: "gray.100" }} onClick={() => selectCity(city)}>{city.label}</ListItem>
-                           ))}
-                         </List>
-                       )}
+                        <FormLabel fontWeight="bold" fontSize="xs" textTransform="uppercase" color="gray.500" mb={1}>Місто</FormLabel>
+                        <Input placeholder="Почніть вводити..." value={formData.cityName} onChange={handleCityChange} bg="gray.50" borderRadius="12px" border="2px solid #e2e8f0" h="50px" _focus={{ borderColor: "black", bg: "white" }} />
+                        {isSearching && <Spinner position="absolute" right="10px" top="35px" size="sm" />}
+                        {cities.length > 0 && (
+                          <List position="absolute" w="full" bg="white" border="2px solid black" borderRadius="12px" zIndex={10} mt={1} maxHeight="200px" overflowY="auto" boxShadow="lg">
+                            {cities.map((city) => (
+                              <ListItem key={city.value} p={3} borderBottom="1px solid #eee" cursor="pointer" _hover={{ bg: "gray.100" }} onClick={() => selectCity(city)}>{city.label}</ListItem>
+                            ))}
+                          </List>
+                        )}
                     </FormControl>
                     <FormControl isDisabled={!formData.cityRef}>
                       <FormLabel fontWeight="bold" fontSize="xs" textTransform="uppercase" color="gray.500" mb={1}>Відділення</FormLabel>
@@ -298,12 +291,12 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                     )}
                     
                     {currentUser && (
-                         <Flex justify="space-between" color={usePoints ? "gray.400" : "#FF0080"}>
-                            <Text>Буде нараховано:</Text>
-                            <Text fontWeight="bold">
-                                {usePoints ? "0 (при списанні)" : `+ ${pointsToEarn} балів`}
-                            </Text>
-                        </Flex>
+                          <Flex justify="space-between" color={usePoints ? "gray.400" : "#FF0080"}>
+                             <Text>Буде нараховано:</Text>
+                             <Text fontWeight="bold">
+                                 {usePoints ? "0 (при списанні)" : `+ ${pointsToEarn} балів`}
+                             </Text>
+                          </Flex>
                     )}
 
                     <Divider />
@@ -316,7 +309,6 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
         </Box>
       </Grid>
 
-      {/* МОДАЛКА */}
       <Modal isOpen={isOpen} onClose={handleCloseSuccess} isCentered size="lg" closeOnOverlayClick={false}>
         <ModalOverlay backdropFilter="blur(5px)" bg="rgba(0,0,0,0.6)" />
         <ModalContent border="2px solid black" borderRadius="24px" p={6} textAlign="center">
@@ -338,7 +330,6 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
           </ModalBody>
           
           <ModalFooter justifyContent="center">
-            {/* 👇 ПОВЕРНУВ ЧОРНУ КНОПКУ */}
             <Button bg="black" color="white" size="lg" borderRadius="12px" _hover={{ bg: "gray.800" }} onClick={handleCloseSuccess}>
                 НА ГОЛОВНУ
             </Button>

@@ -16,8 +16,8 @@ function HomeCarousel() {
       } else {
         // 👇 Твої старі резервні банери
         setSlides([
-          { image: "https://uvape.com.ua/modules/ps_imageslider/images/8051e24749f711202867015431677334585c543f_baner-pc-chaser.webp", link: "/category/liquids" },
-          { image: "https://uvape.com.ua/modules/ps_imageslider/images/9142e0300623156096538e1247072535728a420b_baner-pc-elf-bar.webp", link: "/category/pods" }
+          { image: "", link: "/category/liquids" },
+          { image: "", link: "/category/pods" }
         ])
       }
       setLoading(false)

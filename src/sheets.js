@@ -1,10 +1,16 @@
 import Papa from 'papaparse'
 
-const PRODUCTS_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTumS61gKIjVPKBru6IXEllQ1iq05KoyAw1HCDDDuzahoqQQG5SdmXai60fUKhSREgAGWCI-_VFrd-A/pub?output=csv'
-const BANNERS_SHEET_URL = 'ТУТ_ТВОЄ_ПОСИЛАННЯ_НА_БАНЕРИ' 
+// Посилання беруться з .env
+const PRODUCTS_SHEET_URL = import.meta.env.VITE_PRODUCTS_SHEET_URL;
+const BANNERS_SHEET_URL = import.meta.env.VITE_BANNERS_SHEET_URL;
 
 export const fetchProducts = () => {
   return new Promise((resolve) => {
+    if (!PRODUCTS_SHEET_URL) {
+        console.error("Products sheet URL is missing in .env");
+        resolve([]);
+        return;
+    }
     Papa.parse(PRODUCTS_SHEET_URL, {
       download: true,
       header: true,
@@ -19,9 +25,6 @@ export const fetchProducts = () => {
             const cleanOldPrice = oldPriceRaw ? parseFloat(oldPriceRaw) : null
 
             const points = parseInt(row.points) || 0
-            
-            // 👇 ЗЧИТУЄМО КІЛЬКІСТЬ НА СКЛАДІ
-            // Якщо в таблиці пусто, ставимо 999 (типу безліміт), щоб не блокувати продаж
             const stockCount = row.quantity && row.quantity !== '-' ? parseInt(row.quantity) : 999
 
             let suffix = ""
@@ -38,7 +41,7 @@ export const fetchProducts = () => {
               price: cleanPrice,    
               oldPrice: cleanOldPrice,
               points: points,
-              stockCount: stockCount, // 👈 Зберегли кількість
+              stockCount: stockCount, 
               image: row.image,     
               category: row.category ? row.category.trim().toLowerCase() : "", 
               subcategory: row.subcategory,
@@ -47,8 +50,6 @@ export const fetchProducts = () => {
               brand: row.brand,
               description: row.description,
               inStock: row.inStock ? row.inStock.toLowerCase() !== 'false' : true,
-              
-              // Характеристики
               flavor: row.flavor,             
               color: row.color,               
               country: row.country,           
@@ -73,7 +74,7 @@ export const fetchProducts = () => {
 
 export const fetchBanners = () => {
   return new Promise((resolve) => {
-    if (!BANNERS_SHEET_URL || BANNERS_SHEET_URL.includes('ТУТ')) { resolve([]); return; }
+    if (!BANNERS_SHEET_URL) { resolve([]); return; }
     Papa.parse(BANNERS_SHEET_URL, {
       download: true, header: true,
       complete: (results) => {
