@@ -117,7 +117,7 @@ function Footer() {
               />
             </Box>
             <Text color="gray.400" fontSize="sm">
-              Твій провідник у світ густої пари. Тільки оригінальна продукція, швидка доставка та чесні ціни.
+              Твій провідник у світ густої пари. Тільки оригінальна продукція, швидка доставка та чоткі ціни
             </Text>
             <Stack direction="row" spacing={4}>
               <SocialBtn icon={<FaTelegram />} href="https://t.me/Manager_Smoke1" />
@@ -185,7 +185,7 @@ function Footer() {
         <Divider my={10} borderColor="#333" />
 
         <Flex direction={{ base: "column", md: "row" }} justify="space-between" align="center" color="gray.500" fontSize="sm">
-          <Text>© {new Date().getFullYear()} Smoke House. Всі права захищені.</Text>
+          <Text>© {new Date().getFullYear()} Smoke House. </Text>
           <Flex align="center" gap={2} mt={{ base: 2, md: 0 }}>
              <Box w="30px" h="30px" bg="gray.800" borderRadius="50%" display="flex" alignItems="center" justifyContent="center" color="white" fontWeight="bold">18+</Box>
              <Text>Продукція викликає залежність.</Text>
