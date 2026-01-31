@@ -116,7 +116,7 @@ function ProductPage() {
                 {/* 1. SALE -> ЗНИЖКА */}
                 {product.label && product.label.toLowerCase().includes('sale') && (
                    <Badge 
-                      bg="black" color="#FF0080" border="1px solid #FF0080" 
+                      bg="white" color="#FF0080" border="1px solid #FF0080" 
                       px={3} py={1} borderRadius="8px" fontSize="sm"
                    >
                      ЗНИЖКА ⚡
@@ -126,7 +126,7 @@ function ProductPage() {
                 {/* 2. NEW -> NEW */}
                 {product.label && product.label.toLowerCase().includes('new') && (
                    <Badge 
-                      bg="black" color="#FF0080" border="1px solid #FF0080" 
+                      bg="white" color="#FF0080" border="1px solid #FF0080"
                       px={3} py={1} borderRadius="8px" fontSize="sm"
                    >
                      NEW 🔥
@@ -136,7 +136,7 @@ function ProductPage() {
                 {/* 3. HIT -> ТОП */}
                 {product.label && (product.label.toLowerCase().includes('hit') || product.label.toLowerCase().includes('top')) && (
                    <Badge 
-                      bg="black" color="#FF0080" border="1px solid #FF0080" 
+                      bg="white" color="#FF0080" border="1px solid #FF0080"
                       px={3} py={1} borderRadius="8px" fontSize="sm"
                    >
                      ТОП 🚀
@@ -214,7 +214,7 @@ function ProductPage() {
 
           {/* ЦІНА ТА КНОПКИ */}
           <Box bg="gray.50" p={6} borderRadius="24px">
-               {product.oldPrice && <Text textDecoration="line-through" color="gray.400">{product.oldPrice} ₴</Text>}
+               {product.oldPrice && <Text textDecoration="line-through" color="gray.500">{product.oldPrice} ₴</Text>}
                
                <HStack align="center" spacing={3} mb={4}>
                   <Text fontSize="4xl" fontWeight="900" lineHeight="1">{product.price} <Text as="span" fontSize="lg">грн</Text></Text>

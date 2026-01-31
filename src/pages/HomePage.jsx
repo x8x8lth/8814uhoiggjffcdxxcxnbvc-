@@ -223,7 +223,7 @@ function HomePage() {
         <ProductSection 
           title="НОВИНКИ" 
           products={products.filter(p => p.label && p.label.includes('new'))} 
-          icon="⚡" color="#2cbf5a" 
+          icon="⚡" color="#FF0080" 
           linkTo="/category/new"
         />
 

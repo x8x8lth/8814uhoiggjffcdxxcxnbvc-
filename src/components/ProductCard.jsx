@@ -123,7 +123,7 @@ function ProductCard({ product }) {
         <Flex w="full" justify="space-between" align="end">
           <Box>
             {product.oldPrice && (
-              <Text fontSize="sm" textDecoration="line-through" color="gray.400" fontWeight="bold">
+              <Text fontSize="sm" textDecoration="line-through" color="gray.500" fontWeight="bold">
                 {product.oldPrice} ₴
               </Text>
             )}
