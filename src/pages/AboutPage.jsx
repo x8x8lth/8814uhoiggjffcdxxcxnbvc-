@@ -49,12 +49,13 @@ function AboutPage() {
           
           <GridItem>
             {/* Прибрав p={2} щоб рамка була впритул до фото, і прибрав фільтр */}
-            <Box border="3px solid black" boxShadow="8px 8px 0px black" overflow="hidden">
+            <Box border="3px solid black" boxShadow="8px 8px 0px grey" overflow="hidden" >
               <Image 
                 src="https://i.ibb.co/gFjQfNg2/image1.png" 
                 alt="Vape Shop Interior" 
-                w="full" h="400px" objectFit="cover" 
-                // filter="grayscale(100%)"  <-- Цей рядок видалено!
+                w="full" h="400px"  
+                objectFit="cover"       // Залишаємо cover
+                objectPosition="top"
               />
             </Box>
           </GridItem>
