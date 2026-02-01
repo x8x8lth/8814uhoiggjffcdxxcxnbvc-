@@ -4,7 +4,7 @@ import {
   FormControl, FormLabel, Image, Center, Flex, IconButton, useToast,
   Radio, RadioGroup, Stack, Select, List, ListItem, Spinner, SimpleGrid, Textarea,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,
-  Switch, Grid 
+  Switch, Grid, Badge // 👈 ДОДАВ Badge СЮДИ, ТЕПЕР ПОМИЛКИ НЕ БУДЕ
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowBackIcon, AddIcon, MinusIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Link, useNavigate } from 'react-router-dom'
@@ -25,7 +25,7 @@ function CartPage() {
 
   const [formData, setFormData] = useState({
     lastName: '', firstName: '', middleName: '', 
-    email: '', phone: '', telegram: '', comment: '',    
+    email: '', phone: '', telegram: '', comment: '',     
     payment: 'cod', cityRef: '', cityName: '', department: '',
   })
 
@@ -76,9 +76,16 @@ function CartPage() {
       return
     }
 
-    // 👇 БЕРЕМО ДАНІ З .env
     const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
     const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+
+    const cartItemsText = cart.map(i => {
+        let optionsText = '';
+        if (i.selectedOptions && i.selectedOptions.length > 0) {
+            optionsText = `\n   └ ➕ ${i.selectedOptions.map(o => o.name).join(', ')}`;
+        }
+        return `— ${i.name} (${i.quantity} шт) - ${i.price} грн${optionsText}`;
+    }).join('\n');
 
     const text = `
 🔥 *НОВЕ ЗАМОВЛЕННЯ!*
@@ -96,7 +103,7 @@ function CartPage() {
 💬 *Комент:* ${formData.comment || "-"}
 
 🛒 *ТОВАРИ:*
-${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
+${cartItemsText}
     `;
 
     try {
@@ -106,8 +113,6 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
           });
-      } else {
-          console.warn("Telegram Token або Chat ID не налаштовані в .env");
       }
 
       if (currentUser) {
@@ -126,7 +131,7 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
     } catch (error) {
       console.error(error);
       toast({ title: "Помилка замовлення (але ми зберегли його локально)", status: "warning" });
-      onOpen(); // Все одно показуємо успіх клієнту, якщо помилка тільки в Телеграмі
+      onOpen();
       clearCart();
     }
   }
@@ -164,7 +169,7 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
             const isMaxReached = currentQty >= maxQty;
 
             return (
-              <Flex key={item.id} w="full" bg="white" p={4} align="center" border="2px solid black" borderRadius="16px" direction={{ base: "column", sm: "row" }} gap={{ base: 4, sm: 0 }}>
+              <Flex key={item.cartItemId} w="full" bg="white" p={4} align="center" border="2px solid black" borderRadius="16px" direction={{ base: "column", sm: "row" }} gap={{ base: 4, sm: 0 }}>
                 <Box w="80px" h="80px" mr={{ base: 0, sm: 4 }} border="1px solid #eee" borderRadius="12px" p={2} flexShrink={0}>
                   <Image src={item.image} w="full" h="full" objectFit="contain" fallbackSrc="https://placehold.co/100?text=No+Img" />
                 </Box>
@@ -173,6 +178,16 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                   <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">{item.category}</Text>
                   <Heading size="sm" noOfLines={2}>{item.name}</Heading>
                   
+                  {item.selectedOptions && item.selectedOptions.length > 0 && (
+                      <Flex wrap="wrap" gap={1} justify={{ base: "center", sm: "start" }}>
+                          {item.selectedOptions.map((opt, idx) => (
+                              <Badge key={idx} colorScheme="purple" fontSize="0.7em" borderRadius="4px">
+                                  + {opt.name}
+                              </Badge>
+                          ))}
+                      </Flex>
+                  )}
+
                   <Text fontWeight="900" fontSize="lg" color="black">
                     {item.price * currentQty} ₴ 
                     {!usePoints && item.points > 0 && (
@@ -182,18 +197,18 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                 </VStack>
 
                 <HStack spacing={3} ml={{ base: 0, sm: 4 }}>
-                  <IconButton icon={<MinusIcon w={3} h={3} />} size="sm" isRound variant="outline" border="2px solid black" onClick={() => decreaseQuantity(item.id)} isDisabled={currentQty <= 1} />
+                  <IconButton icon={<MinusIcon w={3} h={3} />} size="sm" isRound variant="outline" border="2px solid black" onClick={() => decreaseQuantity(item.cartItemId)} isDisabled={currentQty <= 1} />
                   <Text fontWeight="bold" fontSize="lg" w="20px" textAlign="center">{currentQty}</Text>
                   <IconButton 
                     icon={<AddIcon w={3} h={3} />} 
                     size="sm" isRound variant="outline" 
                     border="2px solid black" 
-                    onClick={() => increaseQuantity(item.id)} 
+                    onClick={() => increaseQuantity(item.cartItemId)} 
                     isDisabled={isMaxReached} 
                   />
                 </HStack>
 
-                <IconButton icon={<DeleteIcon />} variant="ghost" colorScheme="red" size="lg" ml={{ base: 0, sm: 2 }} onClick={() => removeFromCart(item.id)} borderRadius="12px" />
+                <IconButton icon={<DeleteIcon />} variant="ghost" colorScheme="red" size="lg" ml={{ base: 0, sm: 2 }} onClick={() => removeFromCart(item.cartItemId)} borderRadius="12px" />
               </Flex>
             )
           })}
@@ -294,7 +309,7 @@ ${cart.map(i => `— ${i.name} (${i.quantity} шт)`).join('\n')}
                           <Flex justify="space-between" color={usePoints ? "gray.400" : "#FF0080"}>
                              <Text>Буде нараховано:</Text>
                              <Text fontWeight="bold">
-                                 {usePoints ? "0 (при списанні)" : `+ ${pointsToEarn} балів`}
+                                  {usePoints ? "0 (при списанні)" : `+ ${pointsToEarn} балів`}
                              </Text>
                           </Flex>
                     )}

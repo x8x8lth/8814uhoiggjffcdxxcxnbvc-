@@ -6,13 +6,20 @@ import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink,
   Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon,
   Menu, MenuButton, MenuList, MenuItem, HStack,
-  NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper
+  NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
+  Switch, FormControl, FormLabel
 } from '@chakra-ui/react'
 import { ChevronRightIcon, CheckCircleIcon, WarningIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useCart } from '../context/CartContext'
 import { fetchProducts } from '../sheets'
 import ProductCard from '../components/ProductCard'
 import ProductReviews from '../components/ProductReviews'
+
+const ADDONS = [
+    { id: 'glycerin', name: 'Гліцерин', price: 0, defaultChecked: true },
+    { id: 'ice', name: 'Ice booster', price: 30, defaultChecked: false },
+    { id: 'sour', name: 'Sour booster', price: 30, defaultChecked: false },
+]
 
 const getVariantLabel = (p) => {
   if (!p) return "Варіант"
@@ -32,13 +39,17 @@ function ProductPage() {
   const [product, setProduct] = useState(null)
   const [allData, setAllData] = useState([]) 
   const [loading, setLoading] = useState(true)
-  
   const [qty, setQty] = useState(1)
+
+  const [addonsState, setAddonsState] = useState(
+    ADDONS.reduce((acc, item) => ({ ...acc, [item.id]: item.defaultChecked }), {})
+  )
 
   useEffect(() => {
     window.scrollTo(0, 0)
     setLoading(true)
     setQty(1)
+    setAddonsState(ADDONS.reduce((acc, item) => ({ ...acc, [item.id]: item.defaultChecked }), {}))
     
     fetchProducts().then(data => {
       setAllData(data)
@@ -74,8 +85,19 @@ function ProductPage() {
   }, [product, allData])
 
   const handleBuy = () => {
-    if (product) addToCart(product, parseInt(qty))
+    if (product) {
+        const selectedOptions = ADDONS.filter(addon => addonsState[addon.id])
+        addToCart(product, parseInt(qty), selectedOptions)
+    }
   }
+
+  const handleAddonChange = (id) => {
+      setAddonsState(prev => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const currentPrice = product ? (
+      parseInt(product.price) + ADDONS.reduce((sum, addon) => addonsState[addon.id] ? sum + addon.price : sum, 0)
+  ) : 0
 
   if (loading) return <Center h="80vh"><Spinner size="xl" thickness='4px' /></Center>
   if (!product) return <Center h="50vh"><Heading>Товар не знайдено 😢</Heading></Center>
@@ -110,37 +132,15 @@ function ProductPage() {
             position="relative" border="2px solid black" borderRadius="24px" overflow="hidden" 
             bg="white" p={6} h={{ base: "350px", md: "500px" }} display="flex" align="center" justify="center"
           >
-            {/* 👇 ОНОВЛЕНІ ТЕГИ (VStack щоб не накладались) */}
             <VStack position="absolute" top="15px" left="15px" align="start" spacing={2} zIndex={2}>
-                
-                {/* 1. SALE -> ЗНИЖКА */}
                 {product.label && product.label.toLowerCase().includes('sale') && (
-                   <Badge 
-                      bg="white" color="#FF0080" border="1px solid #FF0080" 
-                      px={3} py={1} borderRadius="8px" fontSize="sm"
-                   >
-                     ЗНИЖКА ⚡
-                   </Badge>
+                   <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={3} py={1} borderRadius="8px" fontSize="sm">ЗНИЖКА ⚡</Badge>
                 )}
-
-                {/* 2. NEW -> NEW */}
                 {product.label && product.label.toLowerCase().includes('new') && (
-                   <Badge 
-                      bg="white" color="#FF0080" border="1px solid #FF0080"
-                      px={3} py={1} borderRadius="8px" fontSize="sm"
-                   >
-                     NEW 🔥
-                   </Badge>
+                   <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={3} py={1} borderRadius="8px" fontSize="sm">NEW 🔥</Badge>
                 )}
-
-                {/* 3. HIT -> ТОП */}
                 {product.label && (product.label.toLowerCase().includes('hit') || product.label.toLowerCase().includes('top')) && (
-                   <Badge 
-                      bg="white" color="#FF0080" border="1px solid #FF0080"
-                      px={3} py={1} borderRadius="8px" fontSize="sm"
-                   >
-                     ТОП 🚀
-                   </Badge>
+                   <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={3} py={1} borderRadius="8px" fontSize="sm">ТОП 🚀</Badge>
                 )}
             </VStack>
 
@@ -211,46 +211,74 @@ function ProductPage() {
               </Menu>
             </Box>
           )}
+            
+          {/* 👇 БЛОК З ДОДАВАННЯМ ОПЦІЙ (Виправлений стиль) */}
+          {product.category === 'liquids' && (
+            <Box bg="white" p={4} borderRadius="16px" border="2px solid black"> {/* <-- СУЦІЛЬНА ЧОРНА РАМКА */}
+                <Text fontWeight="bold" mb={3} fontSize="sm" textTransform="uppercase" color="gray.500">Додати до комплекту:</Text>
+                <VStack align="stretch" spacing={0}>
+                    {ADDONS.map((addon, index) => (
+                        <Flex 
+                            key={addon.id} 
+                            justify="space-between" 
+                            align="center" 
+                            py={2} 
+                            borderBottom={index !== ADDONS.length - 1 ? "1px solid #e2e8f0" : "none"}
+                        >
+                            <HStack>
+                                <Text fontWeight="bold" fontSize="sm">{addon.name}</Text>
+                                {/* 👇 НОВІ СТИЛІ ДЛЯ ЛЕЙБЛІВ */}
+                                {addon.price > 0 && (
+                                    <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={2} borderRadius="6px" fontSize="0.7em">
+                                        +{addon.price} грн
+                                    </Badge>
+                                )}
+                                {addon.price === 0 && (
+                                    <Badge bg="black" color="white" px={2} borderRadius="6px" fontSize="0.7em">
+                                        БЕЗКОШТОВНО
+                                    </Badge>
+                                )}
+                            </HStack>
+                            <Switch 
+                                colorScheme="pink" 
+                                size="md" 
+                                isChecked={addonsState[addon.id]}
+                                onChange={() => handleAddonChange(addon.id)}
+                                sx={{
+                                    'span.chakra-switch__track': { bg: 'gray.300' },
+                                    'span.chakra-switch__track[data-checked]': { bg: 'black' }
+                                }}
+                            />
+                        </Flex>
+                    ))}
+                </VStack>
+            </Box>
+          )}
 
           {/* ЦІНА ТА КНОПКИ */}
           <Box bg="gray.50" p={6} borderRadius="24px">
-               {product.oldPrice && <Text textDecoration="line-through" color="gray.500">{product.oldPrice} ₴</Text>}
+               {product.oldPrice && (
+                  <Text textDecoration="line-through" color="gray.500" fontSize="lg" fontWeight="bold" mr={2}>
+                    {product.oldPrice} ₴
+                  </Text>
+               )}
                
                <HStack align="center" spacing={3} mb={4}>
-                  <Text fontSize="4xl" fontWeight="900" lineHeight="1">{product.price} <Text as="span" fontSize="lg">грн</Text></Text>
+                  <Text fontSize="4xl" fontWeight="900" lineHeight="1">{currentPrice} <Text as="span" fontSize="lg">грн</Text></Text>
                   
-                  {/* БОКС З БАЛАМИ */}
                   {product.points > 0 && (
-                    <Flex 
-                      align="center" 
-                      bg="white"                 
-                      border="2px solid #FF0080" 
-                      px={3} py={1.5}   
-                      borderRadius="12px" 
-                      mt={1}
-                    >
-                      <Image 
-                        src="https://i.ibb.co/C3TQ0Vf2/free-icon-gift-6565290.png" 
-                        boxSize="20px" 
-                        mr={2}         
-                      />
-                      <Text fontSize="sm" fontWeight="bold" color="black">
-                        +{product.points} балів
-                      </Text>
+                    <Flex align="center" bg="white" border="2px solid #FF0080" px={3} py={1.5} borderRadius="12px" mt={1}>
+                      <Image src="https://i.ibb.co/C3TQ0Vf2/free-icon-gift-6565290.png" boxSize="20px" mr={2} />
+                      <Text fontSize="sm" fontWeight="bold" color="black">+{product.points} балів</Text>
                     </Flex>
                   )}
                </HStack>
                
                <Flex gap={3}>
                  <NumberInput 
-                    size="lg" 
-                    maxW="100px" 
-                    min={1} 
-                    max={stockCount}
-                    value={qty} 
-                    onChange={(val) => setQty(val)}
-                    isDisabled={isOutOfStock}
-                    focusBorderColor="#FF0080"
+                   size="lg" maxW="100px" min={1} max={stockCount}
+                   value={qty} onChange={(val) => setQty(val)}
+                   isDisabled={isOutOfStock} focusBorderColor="#FF0080"
                  >
                     <NumberInputField borderRadius="14px" fontWeight="bold" bg="white" border="2px solid black" />
                     <NumberInputStepper>
@@ -303,9 +331,7 @@ function ProductPage() {
 
       {relatedProducts.length > 0 && (
           <Box mt={24}>
-              <Heading size="lg" mb={8} textTransform="uppercase" borderBottom="3px solid black" pb={2} display="inline-block">
-                Вам може сподобатись
-              </Heading>
+              <Heading size="lg" mb={8} textTransform="uppercase" borderBottom="3px solid black" pb={2} display="inline-block">Вам може сподобатись</Heading>
               <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }} gap={6}>
                   {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
               </Grid>
