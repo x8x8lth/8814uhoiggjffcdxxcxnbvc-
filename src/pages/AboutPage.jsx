@@ -50,9 +50,9 @@ function AboutPage() {
           <GridItem>
             <Box border="3px solid black" p={2} boxShadow="8px 8px 0px black">
               <Image 
-                src="https://i.ibb.co/b5cG8D6H/5472296151022243906.jpg" 
+                src="https://i.ibb.co/mC7BSJWf/5456515023837532517.jpg" 
                 alt="Vape Shop Interior" 
-                w="full" h="400px" objectFit="cover" filter="grayscale(100%)" // Чорно-біле фото для стилю
+                w="full" h="600px" objectFit="cover" filter="grayscale(100%)" // Чорно-біле фото для стилю
               />
             </Box>
           </GridItem>
