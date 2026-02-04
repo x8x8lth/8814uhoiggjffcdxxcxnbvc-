@@ -4,7 +4,7 @@ import {
   FormControl, FormLabel, Image, Center, Flex, IconButton, useToast,
   Radio, RadioGroup, Stack, Select, List, ListItem, Spinner, SimpleGrid, Textarea,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,
-  Switch, Grid, Badge // 👈 ДОДАВ Badge СЮДИ, ТЕПЕР ПОМИЛКИ НЕ БУДЕ
+  Switch, Grid, Badge 
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowBackIcon, AddIcon, MinusIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Link, useNavigate } from 'react-router-dom'
@@ -108,10 +108,25 @@ ${cartItemsText}
 
     try {
       if (TELEGRAM_TOKEN && CHAT_ID) {
+          // 👇 ОНОВЛЕННЯ: Додаємо кнопки до повідомлення
+          const replyMarkup = {
+            inline_keyboard: [
+              [
+                { text: "✅ Підтвердити", callback_data: "ORDER_CONFIRM" },
+                { text: "❌ Скасувати", callback_data: "ORDER_CANCEL" }
+              ]
+            ]
+          };
+
           await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
+            body: JSON.stringify({ 
+                chat_id: CHAT_ID, 
+                text: text, 
+                parse_mode: 'Markdown',
+                reply_markup: replyMarkup // 👈 ВІДПРАВЛЯЄМО КНОПКИ
+            })
           });
       }
 
