@@ -124,10 +124,41 @@ function CategoryPage() {
     })
   }, [allProducts, filters, slug])
 
+  // 👇 ОНОВЛЕНЕ СОРТУВАННЯ (Наявність -> ТОП -> Інше)
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts]
-    if (sort === 'low-high') sorted.sort((a, b) => a.price - b.price)
-    else if (sort === 'high-low') sorted.sort((a, b) => b.price - a.price)
+
+    sorted.sort((a, b) => {
+        // 1. ПРІОРИТЕТ №1: НАЯВНІСТЬ (Щоб "Немає" були в самому низу)
+        const countA = a.stockCount !== undefined ? a.stockCount : 999;
+        const isAvailableA = a.inStock !== false && countA > 0;
+
+        const countB = b.stockCount !== undefined ? b.stockCount : 999;
+        const isAvailableB = b.inStock !== false && countB > 0;
+
+        // Якщо А є, а Б немає -> А вгору (-1)
+        if (isAvailableA && !isAvailableB) return -1;
+        // Якщо А немає, а Б є -> А вниз (1)
+        if (!isAvailableA && isAvailableB) return 1;
+
+        // 2. ПРІОРИТЕТ №2: ЦІНА (якщо вибрано)
+        if (sort === 'low-high') return a.price - b.price
+        if (sort === 'high-low') return b.price - a.price
+        
+        // 3. ПРІОРИТЕТ №3: РЕЛЕВАНТНІСТЬ (ХІТ/ТОП -> Зверху)
+        if (sort === 'relevance') {
+            const isHitA = a.label && (a.label.toLowerCase().includes('hit') || a.label.toLowerCase().includes('top'));
+            const isHitB = b.label && (b.label.toLowerCase().includes('hit') || b.label.toLowerCase().includes('top'));
+
+            // Якщо A популярний, а B ні -> A вище
+            if (isHitA && !isHitB) return -1;
+            // Якщо B популярний, а A ні -> B вище
+            if (!isHitA && isHitB) return 1;
+        }
+
+        return 0 
+    })
+
     return sorted
   }, [filteredProducts, sort])
 
@@ -210,23 +241,23 @@ function CategoryPage() {
               {pageCount > 1 && (
                 <Flex justify="center" align="center" gap={8} mt={8} direction="column" w="full">
                   
-                  {/* 1. КНОПКА "ЗАВАНТАЖИТИ ЩЕ" (НА ВСЮ ШИРИНУ) */}
+                  {/* 1. КНОПКА "ЗАВАНТАЖИТИ ЩЕ" */}
                   {currentPage < pageCount && (
-                     <Button 
+                      <Button 
                         onClick={() => handlePageChange(currentPage + 1)}
-                        w="full" // 👈 НА ВСЮ ШИРИНУ
+                        w="full"
                         variant="outline"
                         borderColor="#FF0080"
                         color="#FF0080"
                         bg="white"
                         size="lg" 
-                        h="60px" // Висока і зручна
+                        h="60px"
                         borderRadius="20px" 
                         _hover={{ bg: "#FF0080", color: "white" }} 
                         rightIcon={<ArrowForwardIcon />}
                         textTransform="uppercase"
                         fontWeight="900"
-                        fontFamily="monospace" // 👈 ІНШИЙ ШРИФТ (Моноширинний)
+                        fontFamily="monospace"
                         letterSpacing="2px"
                         fontSize="lg"
                         boxShadow="0px 4px 15px rgba(255, 0, 128, 0.2)"
