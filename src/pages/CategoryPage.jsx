@@ -30,14 +30,11 @@ const SORT_NAMES = {
 
 const ITEMS_PER_PAGE = 12
 
-// 👇 ОНОВЛЕНО: Беремо ТІЛЬКИ з колонки volume
+// Хелпер для об'єму
 const extractVolume = (product) => {
-    // Якщо в колонці volume щось є
     if (product.volume) {
-        // Перетворюємо в рядок і залишаємо тільки цифри (на випадок якщо там написано "30 ml")
         return product.volume.toString().replace(/\D/g, ''); 
     }
-    // Якщо в колонці пусто - повертаємо null (з назви не беремо)
     return null;
 }
 
@@ -93,11 +90,9 @@ function CategoryPage() {
     setCurrentPage(1)
   }, [slug, filters, sort])
 
-  // 👇 ФОРМУВАННЯ СПИСКУ ОПЦІЙ
   const filterOptions = useMemo(() => {
     const getOptions = (key) => [...new Set(allProducts.map(p => p[key]).filter(Boolean))].sort()
     
-    // Формуємо список об'ємів тільки з тих товарів, де заповнена колонка volume
     const volumeOptions = [...new Set(allProducts.map(p => extractVolume(p)).filter(Boolean))]
         .sort((a, b) => parseFloat(a) - parseFloat(b)); 
 
@@ -115,11 +110,17 @@ function CategoryPage() {
     }
   }, [allProducts])
 
-  // 👇 ФІЛЬТРАЦІЯ
+  // 👇 ОНОВЛЕНА ФІЛЬТРАЦІЯ
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) return false
-      if (filters.onlySale && !product.oldPrice) return false
+      
+      // ⚠️ ЗМІНА: Тепер перевіряємо, чи є слово 'sale' у label, а не просто oldPrice
+      if (filters.onlySale) {
+          if (!product.label || !product.label.toLowerCase().includes('sale')) {
+              return false;
+          }
+      }
 
       const check = (key) => {
         if (filters[key].length > 0 && !filters[key].includes(product[key])) return false
@@ -131,10 +132,8 @@ function CategoryPage() {
       if (slug === 'liquids') {
         if (!check('country') || !check('tasteGroup') || !check('flavor')) return false 
         
-        // Фільтр по об'єму для рідин
         if (filters.volume.length > 0) {
             const vol = extractVolume(product);
-            // Якщо об'єм не вказаний або не співпадає з вибраним - приховуємо
             if (!vol || !filters.volume.includes(vol)) return false;
         }
       }
@@ -146,7 +145,6 @@ function CategoryPage() {
       if (slug === 'parts') {
         if (!check('resistance')) return false
         
-        // Фільтр по об'єму для запчастин
         if (filters.volume.length > 0) {
             const vol = extractVolume(product);
             if (!vol || !filters.volume.includes(vol)) return false;
@@ -156,12 +154,12 @@ function CategoryPage() {
     })
   }, [allProducts, filters, slug])
 
-  // 👇 СОРТУВАННЯ (Наявність -> ТОП -> Інше)
+  // 👇 ОНОВЛЕНЕ СОРТУВАННЯ
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts]
 
     sorted.sort((a, b) => {
-        // 1. НАЯВНІСТЬ
+        // 1. НАЯВНІСТЬ (Спочатку ті, що є)
         const countA = a.stockCount !== undefined ? a.stockCount : 999;
         const isAvailableA = a.inStock !== false && countA > 0;
         const countB = b.stockCount !== undefined ? b.stockCount : 999;
@@ -174,10 +172,20 @@ function CategoryPage() {
         if (sort === 'low-high') return a.price - b.price
         if (sort === 'high-low') return b.price - a.price
         
-        // 3. РЕЛЕВАНТНІСТЬ (ХІТ/ТОП)
+        // 3. РЕЛЕВАНТНІСТЬ (HIT + TOP + SALE -> Зверху)
         if (sort === 'relevance') {
-            const isHitA = a.label && (a.label.toLowerCase().includes('hit') || a.label.toLowerCase().includes('top'));
-            const isHitB = b.label && (b.label.toLowerCase().includes('hit') || b.label.toLowerCase().includes('top'));
+            // ⚠️ ЗМІНА: Додав перевірку на 'sale'
+            const isHitA = a.label && (
+                a.label.toLowerCase().includes('hit') || 
+                a.label.toLowerCase().includes('top') || 
+                a.label.toLowerCase().includes('sale')
+            );
+            const isHitB = b.label && (
+                b.label.toLowerCase().includes('hit') || 
+                b.label.toLowerCase().includes('top') ||
+                b.label.toLowerCase().includes('sale')
+            );
+
             if (isHitA && !isHitB) return -1;
             if (!isHitA && isHitB) return 1;
         }
@@ -256,14 +264,12 @@ function CategoryPage() {
         <Box flex="1">
           {currentProducts.length > 0 ? (
             <>
-              {/* СІТКА */}
               <Grid templateColumns={{ base: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} mb={10}>
                 {currentProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </Grid>
 
-              {/* НАВІГАЦІЯ */}
               {pageCount > 1 && (
                 <Flex justify="center" align="center" gap={8} mt={8} direction="column" w="full">
                   
