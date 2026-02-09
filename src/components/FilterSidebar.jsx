@@ -27,7 +27,6 @@ function FilterSidebar({ categorySlug, filters, setFilters, minMaxPrice, options
     setFilters(prev => ({ ...prev, onlySale: e.target.checked }))
   }
 
-  // Група чекбоксів
   const renderCheckboxGroup = (title, key, optionsList) => {
     if (!optionsList || optionsList.length === 0) return null
     return (
@@ -45,9 +44,9 @@ function FilterSidebar({ categorySlug, filters, setFilters, minMaxPrice, options
             {optionsList.map(opt => (
               <Checkbox 
                 key={opt} 
-                colorScheme="blackAlpha" // Чорна галочка
+                colorScheme="blackAlpha" 
                 iconColor="white"
-                borderColor="black"      // Чорна рамка чекбокса
+                borderColor="black"
                 isChecked={filters[key]?.includes(opt)}
                 onChange={() => handleFilterChange(key, opt)}
               >
@@ -61,7 +60,6 @@ function FilterSidebar({ categorySlug, filters, setFilters, minMaxPrice, options
   }
 
   return (
-    // 👇 ОСЬ ТУТ ЗМІНИВ: borderRight="1px solid black" (Чорна, тоненька лінія справа)
     <Box w={{ base: "100%", md: "250px" }} pr={{ md: 6 }} borderRight={{ md: "1px solid black" }}>
       
       <Accordion allowMultiple defaultIndex={[0, 1, 2, 3]}>
@@ -107,6 +105,7 @@ function FilterSidebar({ categorySlug, filters, setFilters, minMaxPrice, options
         {/* === РІДИНИ === */}
         {categorySlug === 'liquids' && (
           <>
+            {renderCheckboxGroup("Об'єм (мл)", "volume", options.volumes)} {/* 👈 ДОДАНО */}
             {renderCheckboxGroup("Група смаків", "tasteGroup", options.tasteGroups)}
             {renderCheckboxGroup("Конкретний смак", "flavor", options.flavors)}
             {renderCheckboxGroup("Країна", "country", options.countries)}

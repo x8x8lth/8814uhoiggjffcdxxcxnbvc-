@@ -1,8 +1,8 @@
 import React from 'react'
-import { Box, Image, Text, Badge, VStack, Flex, useToast, IconButton, HStack } from '@chakra-ui/react'
+import { Box, Image, Text, Badge, VStack, Flex, useToast, IconButton } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
-import { FiShoppingCart, FiBell } from 'react-icons/fi' // 👇 Додав іконку дзвіночка
-import { SmallCloseIcon } from '@chakra-ui/icons' // 👇 Додав іконку хрестика
+import { FiShoppingCart, FiBell } from 'react-icons/fi' 
+import { SmallCloseIcon } from '@chakra-ui/icons' 
 import { useCart } from '../context/CartContext'
 
 function ProductCard({ product }) {
@@ -14,7 +14,7 @@ function ProductCard({ product }) {
   const isOutOfStock = product.inStock === false || stockCount === 0;
 
   const handleBuy = (e) => {
-    e.preventDefault() // Щоб не переходило на сторінку товару при кліку на кнопку
+    e.preventDefault() 
     addToCart(product)
     toast({
       title: "Додано в кошик! 🛒",
@@ -26,15 +26,13 @@ function ProductCard({ product }) {
     })
   }
 
-  // 👇 Логіка кнопки "Повідомити"
- // 👇 Логіка кнопки "Повідомити" (РОЖЕВА ВЕРСІЯ)
+  // 👇 Твоя логіка рожевого повідомлення (повернув як було)
   const handleNotify = (e) => {
     e.preventDefault()
     toast({
       position: "top-right",
       duration: 3000,
       isClosable: true,
-      // 👇 Ми використовуємо 'render', щоб зробити власний дизайн
       render: () => (
         <Box color="white" p={3} bg="#FF0080" borderRadius="12px" boxShadow="lg">
            <Text fontWeight="bold" fontSize="md">
@@ -48,7 +46,7 @@ function ProductCard({ product }) {
     })
   }
 
-  // 👇 ЛОГІКА ТЕГІВ
+  // 👇 Логіка тегів (Sale, New, Hit)
   const hasSale = product.label && product.label.toLowerCase().includes('sale');
   const hasNew = product.label && product.label.toLowerCase().includes('new');
   const hasHit = product.label && (product.label.toLowerCase().includes('hit') || product.label.toLowerCase().includes('top'));
@@ -66,9 +64,9 @@ function ProductCard({ product }) {
       display="flex"
       flexDirection="column"
       _hover={{ transform: "translateY(-5px)", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
-      h="100%" 
+      // ❌ ТУТ БУЛО h="100%" — Я ЙОГО ПРИБРАВ. Це виправить розтягування.
     >
-      {/* 👇 ЛЕЙБЛИ ЗЛІВА (Sale, New, Hit) - Показуємо навіть якщо немає в наявності (опціонально) */}
+      {/* ЛЕЙБЛИ ЗЛІВА */}
       <VStack position="absolute" top="12px" left="12px" align="start" spacing={1} zIndex={2}>
           {hasSale && (
              <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={2} py={1} borderRadius="8px" fontSize="xs" fontWeight="bold">
@@ -87,7 +85,7 @@ function ProductCard({ product }) {
           )}
       </VStack>
 
-      {/* 👇 НОВИЙ ЛЕЙБЛ "ОЧІКУЄТЬСЯ" (Зверху праворуч) */}
+      {/* ЛЕЙБЛ "ОЧІКУЄТЬСЯ" */}
       {isOutOfStock && (
         <Badge 
             position="absolute" 
@@ -117,13 +115,12 @@ function ProductCard({ product }) {
           maxH="100%" 
           maxW="100%"
           objectFit="contain" 
-          // 👇 Ефект "вицвітання": ЧБ + Напівпрозорість
           filter={isOutOfStock ? "grayscale(100%)" : "none"}
           opacity={isOutOfStock ? 0.6 : 1} 
         />
       </Box>
 
-      {/* Контент (Текст залишається чітким) */}
+      {/* Контент */}
       <VStack p={5} align="start" spacing={3} flex="1" justify="space-between" bg="white">
         <Box w="full">
           <Text fontSize="xs" color="gray.500" fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
@@ -159,17 +156,16 @@ function ProductCard({ product }) {
             </Text>
           </Box>
 
-          {/* 👇 КНОПКА: Якщо немає в наявності -> Дзвіночок, інакше -> Кошик */}
           <IconButton 
             icon={isOutOfStock ? <FiBell size={22} /> : <FiShoppingCart size={22} />}
             aria-label={isOutOfStock ? "Повідомити про наявність" : "Купити"}
             variant="outline"
             size="lg"
             h="50px" w="50px"
-            border="2px solid black" // Той самий стиль бордера
+            border="2px solid black"
             borderRadius="14px"
-            color={isOutOfStock ? "gray.500" : "black"} // Сірий колір для дзвіночка
-            borderColor={isOutOfStock ? "gray.400" : "black"} // Сірий бордер для відсутності
+            color={isOutOfStock ? "gray.500" : "black"}
+            borderColor={isOutOfStock ? "gray.400" : "black"}
             bg="transparent"
             _hover={{ 
                 bg: isOutOfStock ? "gray.100" : "black", 

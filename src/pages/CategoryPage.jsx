@@ -28,8 +28,18 @@ const SORT_NAMES = {
   'high-low': 'Від дорогих'
 }
 
-// Ліміт товарів на сторінку
 const ITEMS_PER_PAGE = 12
+
+// 👇 ОНОВЛЕНО: Беремо ТІЛЬКИ з колонки volume
+const extractVolume = (product) => {
+    // Якщо в колонці volume щось є
+    if (product.volume) {
+        // Перетворюємо в рядок і залишаємо тільки цифри (на випадок якщо там написано "30 ml")
+        return product.volume.toString().replace(/\D/g, ''); 
+    }
+    // Якщо в колонці пусто - повертаємо null (з назви не беремо)
+    return null;
+}
 
 function CategoryPage() {
   const { slug } = useParams()
@@ -52,7 +62,7 @@ function CategoryPage() {
     powerMode: [],
     controlType: [],
     resistance: [],
-    volume: []
+    volume: [] 
   })
 
   useEffect(() => {
@@ -83,8 +93,14 @@ function CategoryPage() {
     setCurrentPage(1)
   }, [slug, filters, sort])
 
+  // 👇 ФОРМУВАННЯ СПИСКУ ОПЦІЙ
   const filterOptions = useMemo(() => {
     const getOptions = (key) => [...new Set(allProducts.map(p => p[key]).filter(Boolean))].sort()
+    
+    // Формуємо список об'ємів тільки з тих товарів, де заповнена колонка volume
+    const volumeOptions = [...new Set(allProducts.map(p => extractVolume(p)).filter(Boolean))]
+        .sort((a, b) => parseFloat(a) - parseFloat(b)); 
+
     return {
       brands: getOptions('brand'),
       countries: getOptions('country'),
@@ -95,10 +111,11 @@ function CategoryPage() {
       powerModes: getOptions('powerMode'),
       controlTypes: getOptions('controlType'),
       resistances: getOptions('resistance'),
-      volumes: getOptions('volume'),
+      volumes: volumeOptions, 
     }
   }, [allProducts])
 
+  // 👇 ФІЛЬТРАЦІЯ
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) return false
@@ -113,46 +130,55 @@ function CategoryPage() {
       
       if (slug === 'liquids') {
         if (!check('country') || !check('tasteGroup') || !check('flavor')) return false 
+        
+        // Фільтр по об'єму для рідин
+        if (filters.volume.length > 0) {
+            const vol = extractVolume(product);
+            // Якщо об'єм не вказаний або не співпадає з вибраним - приховуємо
+            if (!vol || !filters.volume.includes(vol)) return false;
+        }
       }
+
       if (slug === 'pods') {
         if (!check('display') || !check('material') || !check('powerMode') || !check('controlType')) return false
       }
+      
       if (slug === 'parts') {
-        if (!check('resistance') || !check('volume')) return false
+        if (!check('resistance')) return false
+        
+        // Фільтр по об'єму для запчастин
+        if (filters.volume.length > 0) {
+            const vol = extractVolume(product);
+            if (!vol || !filters.volume.includes(vol)) return false;
+        }
       }
       return true
     })
   }, [allProducts, filters, slug])
 
-  // 👇 ОНОВЛЕНЕ СОРТУВАННЯ (Наявність -> ТОП -> Інше)
+  // 👇 СОРТУВАННЯ (Наявність -> ТОП -> Інше)
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts]
 
     sorted.sort((a, b) => {
-        // 1. ПРІОРИТЕТ №1: НАЯВНІСТЬ (Щоб "Немає" були в самому низу)
+        // 1. НАЯВНІСТЬ
         const countA = a.stockCount !== undefined ? a.stockCount : 999;
         const isAvailableA = a.inStock !== false && countA > 0;
-
         const countB = b.stockCount !== undefined ? b.stockCount : 999;
         const isAvailableB = b.inStock !== false && countB > 0;
 
-        // Якщо А є, а Б немає -> А вгору (-1)
         if (isAvailableA && !isAvailableB) return -1;
-        // Якщо А немає, а Б є -> А вниз (1)
         if (!isAvailableA && isAvailableB) return 1;
 
-        // 2. ПРІОРИТЕТ №2: ЦІНА (якщо вибрано)
+        // 2. ЦІНА
         if (sort === 'low-high') return a.price - b.price
         if (sort === 'high-low') return b.price - a.price
         
-        // 3. ПРІОРИТЕТ №3: РЕЛЕВАНТНІСТЬ (ХІТ/ТОП -> Зверху)
+        // 3. РЕЛЕВАНТНІСТЬ (ХІТ/ТОП)
         if (sort === 'relevance') {
             const isHitA = a.label && (a.label.toLowerCase().includes('hit') || a.label.toLowerCase().includes('top'));
             const isHitB = b.label && (b.label.toLowerCase().includes('hit') || b.label.toLowerCase().includes('top'));
-
-            // Якщо A популярний, а B ні -> A вище
             if (isHitA && !isHitB) return -1;
-            // Якщо B популярний, а A ні -> B вище
             if (!isHitA && isHitB) return 1;
         }
 
@@ -237,11 +263,10 @@ function CategoryPage() {
                 ))}
               </Grid>
 
-              {/* 👇 БЛОК НАВІГАЦІЇ */}
+              {/* НАВІГАЦІЯ */}
               {pageCount > 1 && (
                 <Flex justify="center" align="center" gap={8} mt={8} direction="column" w="full">
                   
-                  {/* 1. КНОПКА "ЗАВАНТАЖИТИ ЩЕ" */}
                   {currentPage < pageCount && (
                       <Button 
                         onClick={() => handlePageChange(currentPage + 1)}
@@ -266,7 +291,6 @@ function CategoryPage() {
                       </Button>
                   )}
 
-                  {/* 2. НОМЕРИ СТОРІНОК */}
                   <HStack spacing={2}>
                     <IconButton 
                         icon={<ChevronLeftIcon w={6} h={6} />}
