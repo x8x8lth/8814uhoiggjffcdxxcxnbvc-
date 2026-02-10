@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { 
-  Box, Heading, Flex, Container, Grid, Divider, Text, Spinner, Center, 
-  Input, InputGroup, InputRightElement, IconButton, List, ListItem, Image 
+  Box, Heading, Flex, Container, Divider, Text, Spinner, Center, 
+  Input, InputGroup, InputRightElement, IconButton, List, ListItem, Image,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiSearch } from 'react-icons/fi'
+import { FiSearch, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 import ProductCard from '../components/ProductCard'
 import HomeCarousel from '../components/HomeCarousel' 
 import { fetchProducts } from '../sheets'
 
-// 👇 1. СЛОВНИК СИНОНІМІВ (+ СМАКИ)
+// СЛОВНИК СИНОНІМІВ
 const SEARCH_DICTIONARY = [
-  // Бренди
   ['elf bar', 'elfbar', 'ельф', 'елф', 'ельфбар', 'ельф бар'],
   ['chaser', 'чейзер', 'чесер', 'чайзер', 'чейз'],
   ['xros', 'іксрос', 'хрос', 'крос', 'xroz'],
   ['voopoo', 'вупу', 'вопу', 'драг', 'drag'],
   ['geekvape', 'гіквейп', 'гік вейп', 'sonder', 'сондер'],
   ['rf350', 'рф350', 'рф', 'rf'],
-  
-  // Категорії
   ['liquid', 'рідина', 'жижа', 'сольова'],
   ['cartridge', 'картридж', 'катридж', 'іспарік', 'випарник'],
-
-  // 👇 СМАКИ (Тепер знайде Strawberry, якщо ввести Полуниця)
   ['strawberry', 'полуниця', 'клубніка'],
   ['watermelon', 'кавун', 'арбуз'],
   ['melon', 'диня'],
@@ -67,7 +63,6 @@ function HomePage() {
     })
   }, [])
 
-  // 👇 ОНОВЛЕНИЙ ПОШУК (ШУКАЄ ПО СМАКАХ)
   const handleSearchInput = (e) => {
     const query = e.target.value
     setSearchQuery(query)
@@ -79,16 +74,13 @@ function HomePage() {
         const pName = p.name ? p.name.toLowerCase() : '';
         const pBrand = p.brand ? p.brand.toLowerCase() : '';
         const pCategory = p.category ? p.category.toLowerCase() : '';
-        
-        // 👇 ДОДАЛИ ПОШУК ПО СМАКУ
         const pFlavor = p.flavor ? p.flavor.toLowerCase() : ''; 
 
-        // Шукаємо співпадіння в будь-якому з цих полів
         return searchTerms.some(term => 
             pName.includes(term) || 
             pBrand.includes(term) || 
             pCategory.includes(term) ||
-            pFlavor.includes(term) // <--- Тут магія
+            pFlavor.includes(term)
         );
       }).slice(0, 5)
       
@@ -179,7 +171,6 @@ function HomePage() {
                       <Box>
                         <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
                             {product.name}
-                            {/* Якщо є смак, покажемо його в дужках для зручності */}
                             {product.flavor && <Text as="span" color="gray.500" fontWeight="normal"> ({product.flavor})</Text>}
                         </Text>
                         <Text fontSize="xs" color="gray.500">{product.price} ₴</Text>
@@ -201,26 +192,27 @@ function HomePage() {
           )}
         </Box>
 
-        {/* КАРУСЕЛЬ */}
+        {/* ГОЛОВНИЙ БАНЕР-КАРУСЕЛЬ */}
         <Box position="relative" px={{ base: 0, md: 10 }} zIndex={1}> 
            <HomeCarousel />
         </Box>
 
       </Container>
 
-      <Container maxW="container.xl">
+      {/* СЕКЦІЇ ТОВАРІВ (КАРУСЕЛІ) */}
+      <Container maxW="container.xl" overflow="visible">
         <Divider mb={12} borderColor="gray.300" />
 
-        <ProductSection 
+        <ProductCarouselSection 
           title="АКЦІЙНІ ПРОПОЗИЦІЇ" 
           products={products.filter(p => p.label && p.label.includes('sale'))} 
-          icon="🔥" color="red.500" 
+          icon="🔥" color="#FF0080"
           linkTo="/category/sales"
         />
         
         <Divider my={12} />
 
-        <ProductSection 
+        <ProductCarouselSection 
           title="НОВИНКИ" 
           products={products.filter(p => p.label && p.label.includes('new'))} 
           icon="⚡" color="#FF0080" 
@@ -232,32 +224,114 @@ function HomePage() {
   )
 }
 
-const ProductSection = ({ title, products, icon, color, linkTo }) => (
-  <Box mb={4}>
-    <Flex justify="space-between" align="center" mb={6} pb={2} borderBottom="3px solid black">
-      <Flex align="center" gap={2}>
-        <Text fontSize="2xl">{icon}</Text>
-        <Heading fontSize={{ base: "xl", md: "2xl" }} fontWeight="900" textTransform="uppercase" color="black">
-          {title}
-        </Heading>
-      </Flex>
-      <Link to={linkTo || "/category/liquids"}> 
-        <Box as="span" color="black" fontWeight="bold" fontSize="sm" borderBottom="2px solid" borderColor={color} _hover={{ bg: color, color: "white", px: 2 }} transition="all 0.2s">
-          КАТАЛОГ →
-        </Box>
-      </Link>
-    </Flex>
+// 👇 КОМПОНЕНТ КАРУСЕЛІ
+const ProductCarouselSection = ({ title, products, icon, color, linkTo }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
     
-    {products.length > 0 ? (
-      <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)", lg: "repeat(5, 1fr)" }} gap={4}>
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </Grid>
-    ) : (
-      <Text color="gray.500">Товарів з міткою "{title === "АКЦІЙНІ ПРОПОЗИЦІЇ" ? "sale" : "new"}" у таблиці не знайдено.</Text>
-    )}
-  </Box>
-)
+    // 👇 ЗМІНА: base: 2 (2 картки на телефоні)
+    const cardsVisible = useBreakpointValue({ base: 2, sm: 2, md: 3, lg: 4, xl: 5 }) || 2;
+    
+    const totalProducts = products.length;
+
+    const nextSlide = () => {
+        if (currentIndex < totalProducts - cardsVisible) {
+            setCurrentIndex(prev => prev + 1);
+        } else {
+            setCurrentIndex(0); 
+        }
+    };
+
+    const prevSlide = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(prev => prev - 1);
+        } else {
+            setCurrentIndex(totalProducts - cardsVisible > 0 ? totalProducts - cardsVisible : 0);
+        }
+    };
+
+    return (
+        <Box mb={4} position="relative">
+            {/* ЗАГОЛОВОК */}
+            <Flex justify="space-between" align="center" mb={6} pb={2} borderBottom="3px solid black">
+                <Flex align="center" gap={2}>
+                    <Text fontSize="2xl">{icon}</Text>
+                    <Heading fontSize={{ base: "xl", md: "2xl" }} fontWeight="900" textTransform="uppercase" color="black">
+                        {title}
+                    </Heading>
+                </Flex>
+                <Link to={linkTo || "/category/liquids"}> 
+                    <Box as="span" color="black" fontWeight="bold" fontSize="sm" borderBottom="2px solid" borderColor={color} _hover={{ bg: color, color: "white", px: 2 }} transition="all 0.2s">
+                        КАТАЛОГ →
+                    </Box>
+                </Link>
+            </Flex>
+            
+            {products.length > 0 ? (
+                <Box position="relative">
+                    
+                    {/* КНОПКА ВЛІВО */}
+                    {totalProducts > cardsVisible && (
+                        <IconButton 
+                            icon={<FiChevronLeft size={24} />}
+                            position="absolute"
+                            left={{ base: "-10px", xl: "-50px" }}
+                            top="50%"
+                            transform="translateY(-50%)"
+                            zIndex={2}
+                            isRound
+                            bg="white"
+                            border="2px solid black"
+                            boxShadow="lg"
+                            onClick={prevSlide}
+                            _hover={{ bg: "black", color: "white" }}
+                            aria-label="Назад"
+                        />
+                    )}
+
+                    {/* ВІКНО КАРУСЕЛІ */}
+                    <Box overflow="hidden" py={4} mx={{ base: 0, xl: -2 }}>
+                        <Flex 
+                            transition="transform 0.5s ease-in-out"
+                            transform={`translateX(-${currentIndex * (100 / cardsVisible)}%)`}
+                            gap={0} 
+                        >
+                            {products.map((product) => (
+                                <Box 
+                                    key={product.id} 
+                                    minW={`${100 / cardsVisible}%`} 
+                                    px={2} 
+                                >
+                                    <ProductCard product={product} />
+                                </Box>
+                            ))}
+                        </Flex>
+                    </Box>
+
+                    {/* КНОПКА ВПРАВО */}
+                    {totalProducts > cardsVisible && (
+                        <IconButton 
+                            icon={<FiChevronRight size={24} />}
+                            position="absolute"
+                            right={{ base: "-10px", xl: "-50px" }}
+                            top="50%"
+                            transform="translateY(-50%)"
+                            zIndex={2}
+                            isRound
+                            bg="white"
+                            border="2px solid black"
+                            boxShadow="lg"
+                            onClick={nextSlide}
+                            _hover={{ bg: "black", color: "white" }}
+                            aria-label="Вперед"
+                        />
+                    )}
+
+                </Box>
+            ) : (
+                <Text color="gray.500">Товарів з міткою "{title === "АКЦІЙНІ ПРОПОЗИЦІЇ" ? "sale" : "new"}" не знайдено.</Text>
+            )}
+        </Box>
+    )
+}
 
 export default HomePage
