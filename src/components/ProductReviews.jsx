@@ -5,6 +5,7 @@ import {
 } from '@chakra-ui/react'
 import { StarIcon } from '@chakra-ui/icons'
 import { FcGoogle } from 'react-icons/fc' 
+import { FiCheckCircle, FiAlertCircle, FiMessageSquare } from 'react-icons/fi'
 
 import { auth, db, googleProvider } from '../firebase' 
 import { onAuthStateChanged, signInWithPopup } from 'firebase/auth'
@@ -26,13 +27,41 @@ function ProductReviews({ product }) {
     return () => unsubscribe()
   }, [])
 
+  // 👇 ФУНКЦІЯ ДЛЯ КАСТОМНИХ СПОВІЩЕНЬ
+  const showReviewToast = (title, status = 'success') => {
+      toast({
+        position: 'top',
+        duration: 3000,
+        render: () => (
+          <Box
+            color="white"
+            p={4}
+            bg={status === 'error' || status === 'warning' ? '#FF0080' : 'black'}
+            borderRadius="xl"
+            boxShadow="0px 4px 15px rgba(255, 0, 128, 0.4)"
+            border="2px solid white"
+            textAlign="center"
+            minW="250px"
+          >
+            <Flex align="center" justify="center" direction="column">
+              {status === 'success' ? <FiCheckCircle size={24} /> : <FiAlertCircle size={24} />}
+              <Text fontWeight="800" fontSize="md" mt={2} textTransform="uppercase">
+                {title}
+              </Text>
+            </Flex>
+          </Box>
+        ),
+      })
+  }
+
   // 2. Функція входу
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      toast({ title: "Ви успішно увійшли!", status: "success" })
+      showReviewToast("Ви успішно увійшли! 👋", "success")
     } catch (error) {
       console.error(error);
+      showReviewToast("Помилка входу", "error")
     }
   }
 
@@ -60,7 +89,7 @@ function ProductReviews({ product }) {
   // 4. Відправка
   const handleSubmit = async () => {
     if (!newReview.text.trim()) {
-      toast({ title: "Напишіть хоч пару слів!", status: "warning" })
+      showReviewToast("Напишіть хоч пару слів! ✍️", "warning")
       return
     }
 
@@ -78,11 +107,11 @@ function ProductReviews({ product }) {
 
       setNewReview({ text: '', rating: 5 })
       setIsFormOpen(false)
-      toast({ title: "Дякуємо за відгук!", status: "success" })
+      showReviewToast("Дякуємо за відгук! ❤️", "success")
 
     } catch (error) {
       console.error("Error adding review: ", error)
-      toast({ title: "Помилка. Спробуйте пізніше.", status: "error" })
+      showReviewToast("Помилка. Спробуйте пізніше.", "error")
     }
   }
 
@@ -100,46 +129,46 @@ function ProductReviews({ product }) {
         
         {/* ЛІВА КОЛОНКА */}
         <Box flex="1" bg="gray.50" p={6} borderRadius="24px" h="fit-content" border="1px solid #eee">
-           <Flex align="center" mb={4}>
-             <Text fontSize="5xl" fontWeight="900" lineHeight="1" mr={4}>{averageRating}</Text>
-             <VStack align="start" spacing={0}>
-               <HStack>
-                 {[1,2,3,4,5].map(i => (
-                   <StarIcon key={i} color={i <= Math.round(Number(averageRating)) ? "orange.400" : "gray.300"} w={5} h={5} />
-                 ))}
-               </HStack>
-               <Text fontSize="sm" color="gray.500">{reviews.length} відгуків</Text>
-             </VStack>
-           </Flex>
-           
-           <Divider mb={4} borderColor="gray.300" />
+            <Flex align="center" mb={4}>
+              <Text fontSize="5xl" fontWeight="900" lineHeight="1" mr={4}>{averageRating}</Text>
+              <VStack align="start" spacing={0}>
+                <HStack>
+                  {[1,2,3,4,5].map(i => (
+                    <StarIcon key={i} color={i <= Math.round(Number(averageRating)) ? "orange.400" : "gray.300"} w={5} h={5} />
+                  ))}
+                </HStack>
+                <Text fontSize="sm" color="gray.500">{reviews.length} відгуків</Text>
+              </VStack>
+            </Flex>
+            
+            <Divider mb={4} borderColor="gray.300" />
 
-           {!user ? (
-             <Button 
-               w="full" mt={2} leftIcon={<FcGoogle />}
-               bg="white" color="black" border="2px solid black" borderRadius="14px"
-               _hover={{ bg: "gray.100" }}
-               onClick={handleLogin}
-               h="50px" fontSize="md"
-             >
-               Авторизуватись для відгуку
-             </Button>
-           ) : (
-             <VStack mt={2} spacing={3} w="full">
-               <Flex align="center" gap={3} w="full" bg="white" p={2} borderRadius="12px" border="1px solid #eee">
-                 <Avatar size="sm" src={user.photoURL} name={user.displayName} />
-                 <Text fontSize="sm" fontWeight="bold" noOfLines={1}>{user.displayName}</Text>
-               </Flex>
-               
-               <Button 
-                 w="full" bg="black" color="white" borderRadius="14px" h="50px"
-                 _hover={{ bg: "#FF0080" }}
-                 onClick={() => setIsFormOpen(!isFormOpen)}
-               >
-                 {isFormOpen ? "Закрити форму" : "Написати відгук"}
-               </Button>
-             </VStack>
-           )}
+            {!user ? (
+              <Button 
+                w="full" mt={2} leftIcon={<FcGoogle />}
+                bg="white" color="black" border="2px solid black" borderRadius="14px"
+                _hover={{ bg: "gray.100" }}
+                onClick={handleLogin}
+                h="50px" fontSize="md"
+              >
+                Авторизуватись для відгуку
+              </Button>
+            ) : (
+              <VStack mt={2} spacing={3} w="full">
+                <Flex align="center" gap={3} w="full" bg="white" p={2} borderRadius="12px" border="1px solid #eee">
+                  <Avatar size="sm" src={user.photoURL} name={user.displayName} />
+                  <Text fontSize="sm" fontWeight="bold" noOfLines={1}>{user.displayName}</Text>
+                </Flex>
+                
+                <Button 
+                  w="full" bg="black" color="white" borderRadius="14px" h="50px"
+                  _hover={{ bg: "#FF0080" }}
+                  onClick={() => setIsFormOpen(!isFormOpen)}
+                >
+                  {isFormOpen ? "Закрити форму" : "Написати відгук"}
+                </Button>
+              </VStack>
+            )}
         </Box>
 
         {/* ПРАВА КОЛОНКА */}
@@ -152,14 +181,14 @@ function ProductReviews({ product }) {
                   <Text fontSize="sm" fontWeight="bold">Ваша оцінка:</Text>
                   <HStack>
                     {[1,2,3,4,5].map(star => (
-                        <StarIcon 
+                      <StarIcon 
                         key={star} cursor="pointer"
                         color={star <= newReview.rating ? "orange.400" : "gray.300"}
                         w={7} h={7}
                         transition="transform 0.2s"
                         _hover={{ transform: "scale(1.2)" }}
                         onClick={() => setNewReview({...newReview, rating: star})}
-                        />
+                      />
                     ))}
                   </HStack>
                 </HStack>

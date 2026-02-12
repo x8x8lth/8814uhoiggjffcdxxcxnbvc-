@@ -8,13 +8,12 @@ import {
   Image, Text, Avatar, useToast, List, ListItem, Badge, Divider
 } from '@chakra-ui/react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiMenu, FiSearch, FiUser, FiShoppingBag, FiLogOut, FiTrash2, FiX } from 'react-icons/fi'
+import { FiMenu, FiSearch, FiUser, FiShoppingBag, FiLogOut, FiTrash2, FiX, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
 import { FaTelegram, FaGoogle } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { fetchProducts } from '../sheets' 
 
-// 👇 1. СЛОВНИК СИНОНІМІВ
 const SEARCH_DICTIONARY = [
   ['elf bar', 'elfbar', 'ельф', 'елф', 'ельфбар', 'ельф бар'],
   ['chaser', 'чейзер', 'чесер', 'чайзер', 'чейз'],
@@ -26,7 +25,6 @@ const SEARCH_DICTIONARY = [
   ['cartridge', 'картридж', 'катридж', 'іспарік', 'випарник']
 ];
 
-// 👇 Функція, яка розширює пошук
 const getSmartQueries = (input) => {
   const lowerInput = input.toLowerCase().trim();
   let terms = [lowerInput];
@@ -37,6 +35,41 @@ const getSmartQueries = (input) => {
     }
   });
   return terms;
+}
+
+// 👇 ОНОВЛЕНИЙ ПЕРЕКЛАДАЧ ПОМИЛОК (ТЕПЕР ДЛЯ ВСІХ ВИПАДКІВ)
+const getFriendlyErrorMessage = (errorCode) => {
+  switch (errorCode) {
+    case 'auth/missing-password':
+      return "ВИ НЕ ВВЕЛИ ПАРОЛЬ 🔑";
+    case 'auth/wrong-password':
+      return "НЕВІРНИЙ ПАРОЛЬ ❌";
+    case 'auth/user-not-found':
+      return "ТАКОГО АКАУНТУ НЕ ІСНУЄ 🤷‍♂️";
+    case 'auth/invalid-email':
+      return "НЕКОРЕКТНИЙ EMAIL 📧";
+    case 'auth/email-already-in-use':
+      return "EMAIL ВЖЕ ЗАРЕЄСТРОВАНИЙ ✋";
+    case 'auth/too-many-requests':
+      return "ЗАБАГАТО СПРОБ. ЗАЧЕКАЙТЕ ХВИЛИНУ ⏳";
+    case 'auth/weak-password':
+      return "ПАРОЛЬ МАЄ БУТИ ВІД 6 СИМВОЛІВ 🔓";
+    case 'auth/popup-closed-by-user':
+      return "ВИ ЗАКРИЛИ ВІКНО ВХОДУ 🚪";
+    case 'auth/network-request-failed':
+      return "ПЕРЕВІРТЕ ІНТЕРНЕТ З'ЄДНАННЯ 🌐";
+    case 'auth/user-disabled':
+      return "ЦЕЙ АКАУНТ ЗАБЛОКОВАНО 🚫";
+    case 'auth/operation-not-allowed':
+      return "ВХІД ТИМЧАСОВО НЕДОСТУПНИЙ 🔧";
+    case 'auth/credential-already-in-use':
+      return "ЦЕЙ АКАУНТ ВЖЕ ПРИВ'ЯЗАНИЙ 🔗";
+    case 'auth/invalid-credential':
+      return "ПОМИЛКА ДАНИХ ВХОДУ ❌";
+    default:
+      // 👇 Якщо помилка якась дуже рідкісна, виведеться це:
+      return "ЩОСЬ ПІШЛО НЕ ТАК. СПРОБУЙТЕ ЩЕ РАЗ 😔";
+  }
 }
 
 function Header() {
@@ -54,7 +87,6 @@ function Header() {
   const [password, setPassword] = useState('')
   const [isLoginMode, setIsLoginMode] = useState(true)
 
-  // ПОШУК
   const [isSearchActive, setIsSearchActive] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -108,10 +140,61 @@ function Header() {
     setSearchResults([])
   }
 
-  // АВТОРИЗАЦІЯ
-  const handleGoogleLogin = async () => { try { await loginWithGoogle(); onAuthClose(); toast({ title: "Успішний вхід!", status: "success" }) } catch (error) { toast({ title: "Помилка", status: "error" }) } }
-  const handleEmailAuth = async () => { try { if (isLoginMode) await loginWithEmail(email, password); else await registerWithEmail(email, password, name); onAuthClose(); toast({ title: "Успішно!", status: "success" }) } catch (error) { toast({ title: "Помилка", description: error.message, status: "error" }) } }
-  const handleLogout = async () => { await logout(); toast({ title: "Вихід успішний", status: "info" }) }
+  const showAuthToast = (title, status = 'success') => {
+      toast({
+        position: 'top',
+        duration: 3000,
+        render: () => (
+          <Box
+            color="white"
+            p={4}
+            bg={status === 'error' ? '#FF0080' : 'black'}
+            borderRadius="xl"
+            boxShadow="0px 4px 15px rgba(255, 0, 128, 0.4)"
+            border="2px solid white"
+            textAlign="center"
+            minW="250px"
+          >
+            <Flex align="center" justify="center" direction="column">
+              {status === 'success' ? <FiCheckCircle size={24} /> : <FiAlertCircle size={24} />}
+              <Text fontWeight="800" fontSize="md" mt={2} textTransform="uppercase">
+                {title}
+              </Text>
+            </Flex>
+          </Box>
+        ),
+      })
+  }
+
+  const handleGoogleLogin = async () => { 
+      try { 
+          await loginWithGoogle(); 
+          onAuthClose(); 
+          showAuthToast("Успішний вхід! 👋", "success");
+      } catch (error) { 
+          // 👇 Використовуємо перекладач помилок
+          const message = getFriendlyErrorMessage(error.code);
+          showAuthToast(message, "error");
+      } 
+  }
+  
+  const handleEmailAuth = async () => { 
+      try { 
+          if (isLoginMode) await loginWithEmail(email, password); 
+          else await registerWithEmail(email, password, name); 
+          onAuthClose(); 
+          showAuthToast(isLoginMode ? "Раді бачити! 👋" : "Вітаємо в клубі! 🚀", "success");
+      } catch (error) { 
+          // 👇 Використовуємо перекладач помилок
+          const message = getFriendlyErrorMessage(error.code);
+          showAuthToast(message, "error");
+      } 
+  }
+  
+  const handleLogout = async () => { 
+      await logout(); 
+      showAuthToast("Ви вийшли з акаунту", "success");
+  }
 
   return (
     <>
@@ -131,7 +214,7 @@ function Header() {
                 _focus={{ boxShadow: "0 0 0 2px #FF0080" }}
               />
               <InputRightElement>
-                 <IconButton icon={<FiX />} size="sm" variant="ghost" color="black" onClick={toggleSearch} />
+                  <IconButton icon={<FiX />} size="sm" variant="ghost" color="black" onClick={toggleSearch} />
               </InputRightElement>
             </InputGroup>
 
@@ -159,7 +242,7 @@ function Header() {
                     </ListItem>
                   ))}
                   <ListItem p={2} bg="gray.100" textAlign="center" cursor="pointer" onClick={() => handleSearchSubmit({ key: 'Enter' })}>
-                     <Text fontSize="xs" fontWeight="bold" color="#FF0080">Переглянути всі результати</Text>
+                      <Text fontSize="xs" fontWeight="bold" color="#FF0080">Переглянути всі результати</Text>
                   </ListItem>
                 </List>
               </Box>
@@ -171,37 +254,26 @@ function Header() {
               <Menu>
                 <MenuButton as={IconButton} icon={<FiMenu size="24px" />} variant="ghost" colorScheme="whiteAlpha" aria-label="Каталог" />
                 
-                {/* 👇 ТУТ МЕНЮ З ІКОНКАМИ */}
                 <MenuList color="black" zIndex={101} border="2px solid black" borderRadius="12px" p={2} mt={2}>
-                    
                     <MenuItem as={Link} to="/category/sales" icon={<Image src="https://i.ibb.co/yHz9Wvx/free-icon-promotions-372754.png" boxSize="20px" />} fontWeight="bold" mb={1}>
                         Акції
                     </MenuItem>
-                    
                     <MenuItem as={Link} to="/category/new" icon={<Image src="https://i.ibb.co/1YdtLqwv/free-icon-new-7244706.png" boxSize="20px" />} fontWeight="bold" mb={1}>
                         Новинки
                     </MenuItem>
-                    
                     <MenuDivider />
-
-                    {/* 👇 ВСТАВЛЯЙ СВОЇ ПОСИЛАННЯ НИЖЧЕ */}
-                    
                     <MenuItem as={Link} to="/category/kits" icon={<Image src="https://i.ibb.co/YT8NHh3w/free-icon-vape-liquid-1686684.png" boxSize="20px" />}>
                         Стартові набори
                     </MenuItem>
-                    
                     <MenuItem as={Link} to="/category/liquids" icon={<Image src="https://i.ibb.co/kVwGp6Xk/free-icon-vape-liquid-4811021.png" boxSize="20px" />}>
                         Рідини
                     </MenuItem>
-                    
                     <MenuItem as={Link} to="/category/pods" icon={<Image src="https://i.ibb.co/sJzf4hxW/free-icon-pod-12314028.png" boxSize="20px" />}>
                         Pod системи
                     </MenuItem>
-                    
                     <MenuItem as={Link} to="/category/parts" icon={<Image src="https://i.ibb.co/v4wJCDdG/free-icon-cartridge-3757178.png" boxSize="20px" />}>
                         Комплектуючі
                     </MenuItem>
-
                 </MenuList>
               </Menu>
               <IconButton icon={<FiSearch size="22px" />} variant="ghost" colorScheme="whiteAlpha" onClick={toggleSearch} />
@@ -243,7 +315,6 @@ function Header() {
         )}
       </Box>
 
-      {/* Модалки (Вхід і Кошик) залишив без змін, код довгий, але ти просив весь */}
       <Modal isOpen={isAuthOpen} onClose={onAuthClose} isCentered size="sm">
         <ModalOverlay backdropFilter="blur(5px)" bg="rgba(0,0,0,0.4)" />
         <ModalContent border="2px solid black" borderRadius="24px" p={2}>

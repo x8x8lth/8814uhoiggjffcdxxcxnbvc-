@@ -1,21 +1,61 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { useToast } from '@chakra-ui/react'
+import { useToast, Box, Flex, Text } from '@chakra-ui/react'
+import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 
 const CartContext = createContext()
 
 export const useCart = () => useContext(CartContext)
 
 export const CartProvider = ({ children }) => {
+  // Ініціалізація стану кошика з localStorage
   const [cart, setCart] = useState(() => {
-    const localData = localStorage.getItem('cart')
-    return localData ? JSON.parse(localData) : []
+    try {
+      const localData = localStorage.getItem('cart')
+      return localData ? JSON.parse(localData) : []
+    } catch (e) {
+      console.error("Помилка читання кошика з localStorage:", e)
+      return []
+    }
   })
   
   const toast = useToast()
 
+  // Збереження кошика в localStorage при зміні
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
   }, [cart])
+
+  // 👇 ФУНКЦІЯ ДЛЯ КАСТОМНИХ СПОВІЩЕНЬ
+  const showCartToast = (title, description = null, status = 'success') => {
+    toast({
+      position: 'top',
+      duration: 2000,
+      render: () => (
+        <Box
+          color="white"
+          p={4}
+          bg={status === 'warning' ? '#FF0080' : 'black'}
+          borderRadius="xl"
+          boxShadow="0px 4px 15px rgba(255, 0, 128, 0.4)"
+          border="2px solid white"
+          textAlign="center"
+          minW="250px"
+        >
+          <Flex align="center" justify="center" direction="column">
+            {status === 'success' ? <FiCheckCircle size={24} /> : <FiAlertCircle size={24} />}
+            <Text fontWeight="800" fontSize="md" mt={2} textTransform="uppercase">
+              {title}
+            </Text>
+            {description && (
+                <Text fontSize="sm" mt={1} opacity={0.9}>
+                    {description}
+                </Text>
+            )}
+          </Flex>
+        </Box>
+      ),
+    })
+  }
 
   // 👇 ОНОВЛЕНА ФУНКЦІЯ ДОДАВАННЯ (З урахуванням опцій)
   const addToCart = (product, quantity = 1, selectedOptions = []) => {
@@ -40,25 +80,19 @@ export const CartProvider = ({ children }) => {
       const currentQty = existingItem ? existingItem.quantity : 0
 
       if (currentQty + quantity > stockLimit) {
-        toast({
-          title: "Обмежена кількість!",
-          description: `На складі всього ${stockLimit} шт.`,
-          status: "warning",
-          duration: 2000,
-          isClosable: true,
-          position: "top"
-        })
+        showCartToast("Обмежена кількість!", `На складі всього ${stockLimit} шт.`, "warning")
         return prevCart
       }
 
-      toast({ 
-        title: "Додано в кошик", 
-        description: selectedOptions.length > 0 ? `+ ${selectedOptions.map(o => o.name).join(', ')}` : undefined,
-        status: "success", 
-        duration: 1000, 
-        isClosable: true,
-        position: "top-right"
-      })
+      // Якщо успішно додаємо - показуємо тост (тільки якщо це не зі сторінки товару, де свій тост)
+      // Але оскільки функція addToCart викликається з різних місць, краще залишити тост тут, 
+      // АБО прибрати його з компонентів. 
+      // У твоєму випадку компоненти ProductCard і ProductPage ВЖЕ мають свої тости.
+      // Щоб не дублювати, можна тут прибрати success тост, АБО залишити як резервний.
+      // Я залишу success тост закоментованим, щоб не було подвійних повідомлень, 
+      // оскільки ми додали красиві тости прямо в компоненти.
+      
+      // showCartToast("Додано в кошик", selectedOptions.length > 0 ? `+ ${selectedOptions.map(o => o.name).join(', ')}` : null, "success")
 
       if (existingItem) {
         return prevCart.map((item) =>
@@ -87,23 +121,20 @@ export const CartProvider = ({ children }) => {
 
   const increaseQuantity = (cartItemId) => {
     setCart((prevCart) => {
-      return prevCart.map((item) => {
+      // Використовуємо map, щоб пройтись по кошику і оновити потрібний елемент
+      const newCart = prevCart.map((item) => {
         if (item.cartItemId === cartItemId) {
           const stockLimit = item.stockCount !== undefined ? item.stockCount : 999
           
           if (item.quantity + 1 > stockLimit) {
-            toast({
-              title: "Максимум на складі!",
-              status: "warning",
-              duration: 1000,
-              position: "top"
-            })
-            return item
+            showCartToast("Максимум на складі!", null, "warning")
+            return item // Повертаємо item без змін
           }
           return { ...item, quantity: item.quantity + 1 }
         }
         return item
       })
+      return newCart
     })
   }
 

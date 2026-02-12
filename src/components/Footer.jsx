@@ -17,13 +17,24 @@ function Footer() {
 
   const handleSubscribe = async () => {
     if (!email || !email.includes('@')) {
-      toast({ title: "Введіть коректний Email", status: "warning", position: "bottom-right" })
+      // 👇 1. СПОВІЩЕННЯ ПРО ПОМИЛКУ ВВОДУ
+      toast({
+        position: "bottom-right",
+        duration: 3000,
+        render: () => (
+            <Box color="white" p={3} bg="#FF0080" borderRadius="xl" boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)" border="1px solid rgba(255,255,255,0.2)">
+                <Flex align="center">
+                    <Box fontSize="20px" mr={2}>⚠️</Box>
+                    <Text fontWeight="bold">Введіть коректний Email</Text>
+                </Flex>
+            </Box>
+        )
+      })
       return
     }
 
     setLoading(true)
 
-    // 👇 БЕРЕМО ДАНІ З .env
     const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
     const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
@@ -40,19 +51,38 @@ function Footer() {
           console.log("Токен не налаштовано, імітуємо успіх");
       }
 
+      // 👇 2. СПОВІЩЕННЯ ПРО УСПІХ
       toast({ 
-        title: "Ви успішно підписались! 🚀", 
-        description: "Чекайте на круті новини.", 
-        status: "success", 
+        position: "bottom-right",
         duration: 3000, 
-        isClosable: true,
-        position: "bottom-right"
+        render: () => (
+            <Box color="white" p={3} bg="#FF0080" borderRadius="xl" boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)" border="1px solid rgba(255,255,255,0.2)">
+                <Flex align="center">
+                    <Box fontSize="24px" mr={3}>🚀</Box>
+                    <Box>
+                        <Text fontWeight="800" fontSize="md">ПІДПИСАНО!</Text>
+                        <Text fontSize="sm" opacity="0.9">Чекайте на круті новини.</Text>
+                    </Box>
+                </Flex>
+            </Box>
+        )
       })
       setEmail('') 
 
     } catch (error) {
       console.error(error)
-      toast({ title: "Помилка", status: "error" })
+      // 👇 3. СПОВІЩЕННЯ ПРО ПОМИЛКУ СЕРВЕРА
+      toast({ 
+        position: "bottom-right",
+        render: () => (
+            <Box color="white" p={3} bg="#FF0080" borderRadius="xl" boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)">
+                <Flex align="center">
+                    <Box fontSize="20px" mr={2}>❌</Box>
+                    <Text fontWeight="bold">Щось пішло не так...</Text>
+                </Flex>
+            </Box>
+        )
+      })
     } finally {
       setLoading(false)
     }

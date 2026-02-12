@@ -7,7 +7,7 @@ import {
   Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon,
   Menu, MenuButton, MenuList, MenuItem, HStack,
   NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
-  Switch, FormControl, FormLabel
+  Switch, FormControl, FormLabel, useToast // <--- ДОДАНО useToast
 } from '@chakra-ui/react'
 import { ChevronRightIcon, CheckCircleIcon, WarningIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useCart } from '../context/CartContext'
@@ -35,6 +35,7 @@ function ProductPage() {
   const { id } = useParams()
   const { addToCart } = useCart()
   const navigate = useNavigate()
+  const toast = useToast() // <--- ІНІЦІАЛІЗАЦІЯ TOAST
   
   const [product, setProduct] = useState(null)
   const [allData, setAllData] = useState([]) 
@@ -88,6 +89,31 @@ function ProductPage() {
     if (product) {
         const selectedOptions = ADDONS.filter(addon => addonsState[addon.id])
         addToCart(product, parseInt(qty), selectedOptions)
+
+        // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ
+        toast({
+            position: 'top-right',
+            duration: 2000,
+            render: () => (
+              <Box
+                color="white"
+                p={3}
+                bg="#FF0080"
+                borderRadius="xl"
+                boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)"
+                border="1px solid rgba(255,255,255,0.2)"
+                minW="250px"
+              >
+                <Flex align="center">
+                  <Box fontSize="24px" mr={3}>🛍️</Box>
+                  <Box>
+                    <Text fontWeight="800" fontSize="md">У КОШИКУ!</Text>
+                    <Text fontSize="sm" opacity="0.9">Товар успішно додано</Text>
+                  </Box>
+                </Flex>
+              </Box>
+            ),
+        })
     }
   }
 

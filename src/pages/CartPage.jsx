@@ -6,7 +6,7 @@ import {
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,
   Switch, Grid, Badge 
 } from '@chakra-ui/react'
-import { DeleteIcon, ArrowBackIcon, AddIcon, MinusIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { DeleteIcon, ArrowBackIcon, AddIcon, MinusIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext' 
@@ -68,11 +68,39 @@ function CartPage() {
     setIsLoadingWarehouses(false);
   }
 
+  // 👇 ФУНКЦІЯ ДЛЯ КАСТОМНИХ СПОВІЩЕНЬ
+  const showPinkToast = (title, status = 'error') => {
+    toast({
+      position: 'top',
+      duration: 3000,
+      render: () => (
+        <Box
+          color="white"
+          p={4}
+          bg={status === 'error' ? '#FF0080' : 'black'}
+          borderRadius="xl"
+          boxShadow="0px 4px 15px rgba(255, 0, 128, 0.4)"
+          border="2px solid white"
+          textAlign="center"
+          minW="300px"
+        >
+          <Flex align="center" justify="center" direction="column">
+            <WarningIcon w={6} h={6} mb={2} color="white" />
+            <Text fontWeight="800" fontSize="lg" textTransform="uppercase">
+              {title}
+            </Text>
+          </Flex>
+        </Box>
+      ),
+    })
+  }
+
   const handleOrder = async () => {
     if (cart.length === 0) return
 
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.cityName || !formData.department) {
-      toast({ title: "Заповніть обов'язкові поля!", status: "error" })
+      // 👇 ВИКЛИК КАСТОМНОГО СПОВІЩЕННЯ
+      showPinkToast("Заповніть всі поля! 😡", "error")
       return
     }
 
@@ -108,7 +136,6 @@ ${cartItemsText}
 
     try {
       if (TELEGRAM_TOKEN && CHAT_ID) {
-          // 👇 ОНОВЛЕННЯ: Додаємо кнопки до повідомлення
           const replyMarkup = {
             inline_keyboard: [
               [
@@ -125,7 +152,7 @@ ${cartItemsText}
                 chat_id: CHAT_ID, 
                 text: text, 
                 parse_mode: 'Markdown',
-                reply_markup: replyMarkup // 👈 ВІДПРАВЛЯЄМО КНОПКИ
+                reply_markup: replyMarkup 
             })
           });
       }
@@ -145,7 +172,11 @@ ${cartItemsText}
       
     } catch (error) {
       console.error(error);
-      toast({ title: "Помилка замовлення (але ми зберегли його локально)", status: "warning" });
+      // 👇 ВИКЛИК КАСТОМНОГО СПОВІЩЕННЯ
+      showPinkToast("Помилка! Спробуйте ще раз", "error");
+      // toast({ title: "Помилка замовлення (але ми зберегли його локально)", status: "warning" }); // Старий код
+      
+      // Якщо помилка не критична і ти все одно хочеш показати успіх (як було в оригіналі):
       onOpen();
       clearCart();
     }

@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Image, Text, Badge, VStack, Flex, useToast, IconButton } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 import { FiShoppingCart, FiBell } from 'react-icons/fi' 
-import { SmallCloseIcon } from '@chakra-ui/icons' 
+import { SmallCloseIcon, CheckCircleIcon } from '@chakra-ui/icons' 
 import { useCart } from '../context/CartContext'
 
 function ProductCard({ product }) {
@@ -16,31 +16,60 @@ function ProductCard({ product }) {
   const handleBuy = (e) => {
     e.preventDefault() 
     addToCart(product)
+    
+    // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ ПРО КОШИК
     toast({
-      title: "Додано в кошик! 🛒",
-      description: product.fullName || product.name,
-      status: "success",
+      position: 'top-right',
       duration: 2000,
-      isClosable: true,
-      position: "top-right"
+      render: () => (
+        <Box
+          color="white"
+          p={3}
+          bg="#FF0080"
+          borderRadius="xl"
+          boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)"
+          border="1px solid rgba(255,255,255,0.2)"
+          minW="250px"
+        >
+          <Flex align="center">
+            <Box fontSize="24px" mr={3}>🛍️</Box>
+            <Box>
+              <Text fontWeight="800" fontSize="md">У КОШИКУ!</Text>
+              <Text fontSize="sm" opacity="0.9" noOfLines={1}>{product.name}</Text>
+            </Box>
+          </Flex>
+        </Box>
+      ),
     })
   }
 
-  // 👇 Твоя логіка рожевого повідомлення (повернув як було)
   const handleNotify = (e) => {
     e.preventDefault()
+    
+    // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ ПРО "ПОВІДОМИТИ"
     toast({
       position: "top-right",
       duration: 3000,
-      isClosable: true,
       render: () => (
-        <Box color="white" p={3} bg="#FF0080" borderRadius="12px" boxShadow="lg">
-           <Text fontWeight="bold" fontSize="md">
-             Сповіщення увімкнено! 🔔
-           </Text>
-           <Text fontSize="sm">
-             Ми повідомимо вас, коли товар з'явиться.
-           </Text>
+        <Box 
+            color="white" 
+            p={3} 
+            bg="#FF0080" 
+            borderRadius="xl" 
+            boxShadow="0px 4px 15px rgba(255, 0, 128, 0.5)"
+            border="1px solid rgba(255,255,255,0.2)"
+        >
+           <Flex align="center">
+            <Box fontSize="24px" mr={3}>🔔</Box>
+            <Box>
+               <Text fontWeight="800" fontSize="md">
+                 СПОВІЩЕННЯ УВІМКНЕНО!
+               </Text>
+               <Text fontSize="sm" opacity="0.9">
+                 Ми повідомимо вас, коли товар з'явиться.
+               </Text>
+            </Box>
+           </Flex>
         </Box>
       ),
     })
@@ -64,7 +93,6 @@ function ProductCard({ product }) {
       display="flex"
       flexDirection="column"
       _hover={{ transform: "translateY(-5px)", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
-      // ❌ ТУТ БУЛО h="100%" — Я ЙОГО ПРИБРАВ. Це виправить розтягування.
     >
       {/* ЛЕЙБЛИ ЗЛІВА */}
       <VStack position="absolute" top="12px" left="12px" align="start" spacing={1} zIndex={2}>
@@ -110,13 +138,14 @@ function ProductCard({ product }) {
       {/* Фото */}
       <Box h="220px" p={6} display="flex" alignItems="center" justifyContent="center" bg="white">
         <Image 
-          src={product.image || "https://via.placeholder.com/300x300?text=No+Image"} 
+          src={product.image} // 👈 ТУТ БУЛО ПРОПУЩЕНО src={product.image}
           alt={product.name} 
           maxH="100%" 
           maxW="100%"
           objectFit="contain" 
           filter={isOutOfStock ? "grayscale(100%)" : "none"}
           opacity={isOutOfStock ? 0.6 : 1} 
+          fallbackSrc="https://placehold.co/200?text=No+Image" // Додав фолбек
         />
       </Box>
 
