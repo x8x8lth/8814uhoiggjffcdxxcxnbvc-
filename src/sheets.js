@@ -49,6 +49,7 @@ export const fetchProducts = () => {
               label: row.labels,    
               brand: row.brand,
               description: row.description,
+              description_image: row.description_image, // 👇 ДОДАНО ОСЬ ЦЕЙ РЯДОК!
               inStock: row.inStock ? row.inStock.toLowerCase() !== 'false' : true,
               flavor: row.flavor,             
               color: row.color,               

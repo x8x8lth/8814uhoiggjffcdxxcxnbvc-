@@ -7,7 +7,7 @@ import {
   Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon,
   Menu, MenuButton, MenuList, MenuItem, HStack,
   NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper,
-  Switch, FormControl, FormLabel, useToast // <--- ДОДАНО useToast
+  Switch, useToast 
 } from '@chakra-ui/react'
 import { ChevronRightIcon, CheckCircleIcon, WarningIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useCart } from '../context/CartContext'
@@ -35,7 +35,7 @@ function ProductPage() {
   const { id } = useParams()
   const { addToCart } = useCart()
   const navigate = useNavigate()
-  const toast = useToast() // <--- ІНІЦІАЛІЗАЦІЯ TOAST
+  const toast = useToast() 
   
   const [product, setProduct] = useState(null)
   const [allData, setAllData] = useState([]) 
@@ -90,7 +90,6 @@ function ProductPage() {
         const selectedOptions = ADDONS.filter(addon => addonsState[addon.id])
         addToCart(product, parseInt(qty), selectedOptions)
 
-        // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ
         toast({
             position: 'top-right',
             duration: 2000,
@@ -154,9 +153,10 @@ function ProductPage() {
         
         {/* ФОТО */}
         <Box>
+          {/* 👇 ТУТ ЗМІНИ: прибрав p={6} */}
           <Box 
             position="relative" border="2px solid black" borderRadius="24px" overflow="hidden" 
-            bg="white" p={6} h={{ base: "350px", md: "500px" }} display="flex" align="center" justify="center"
+            bg="white" h={{ base: "350px", md: "500px" }} display="flex" align="center" justify="center"
           >
             <VStack position="absolute" top="15px" left="15px" align="start" spacing={2} zIndex={2}>
                 {product.label && product.label.toLowerCase().includes('sale') && (
@@ -170,9 +170,10 @@ function ProductPage() {
                 )}
             </VStack>
 
+            {/* 👇 ТУТ ЗМІНИ: objectFit="cover" */}
             <Image 
               src={product.image || null} 
-              alt={product.name} w="full" h="full" objectFit="contain" 
+              alt={product.name} w="full" h="full" objectFit="cover" 
               filter={isOutOfStock ? "grayscale(100%)" : "none"}
               fallbackSrc="https://via.placeholder.com/400?text=No+Image"
             />
@@ -238,9 +239,9 @@ function ProductPage() {
             </Box>
           )}
             
-          {/* 👇 БЛОК З ДОДАВАННЯМ ОПЦІЙ (Виправлений стиль) */}
+          {/* БЛОК З ДОДАВАННЯМ ОПЦІЙ */}
           {product.category === 'liquids' && (
-            <Box bg="white" p={4} borderRadius="16px" border="2px solid black"> {/* <-- СУЦІЛЬНА ЧОРНА РАМКА */}
+            <Box bg="white" p={4} borderRadius="16px" border="2px solid black">
                 <Text fontWeight="bold" mb={3} fontSize="sm" textTransform="uppercase" color="gray.500">Додати до комплекту:</Text>
                 <VStack align="stretch" spacing={0}>
                     {ADDONS.map((addon, index) => (
@@ -253,7 +254,6 @@ function ProductPage() {
                         >
                             <HStack>
                                 <Text fontWeight="bold" fontSize="sm">{addon.name}</Text>
-                                {/* 👇 НОВІ СТИЛІ ДЛЯ ЛЕЙБЛІВ */}
                                 {addon.price > 0 && (
                                     <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={2} borderRadius="6px" fontSize="0.7em">
                                         +{addon.price} грн
@@ -342,10 +342,32 @@ function ProductPage() {
                   </SimpleGrid>
                </AccordionPanel>
             </AccordionItem>
+            
              <AccordionItem borderBottom="2px solid black">
-               <h2><AccordionButton px={0} _hover={{ bg: 'transparent' }} py={4}><Box flex='1' textAlign='left' fontWeight="bold">ОПИС</Box><AccordionIcon /></AccordionButton></h2>
-               <AccordionPanel pb={4} px={0} color="gray.600" lineHeight="1.7">
-                 {product.description || "Опис товару оновлюється."}
+               <h2>
+                 <AccordionButton px={0} _hover={{ bg: 'transparent' }} py={4}>
+                    <Box flex='1' textAlign='left' fontWeight="bold" textTransform="uppercase">Огляд та смак</Box>
+                    <AccordionIcon />
+                 </AccordionButton>
+               </h2>
+               <AccordionPanel pb={6} px={0}>
+                 
+                 {product.description_image && (
+                    <Box w="full" mb={6} borderRadius="16px" overflow="hidden" border="2px solid black" boxShadow="sm">
+                       <Image 
+                         src={product.description_image.replace(/['"\n\r\s]+/g, '')} 
+                         alt={`Огляд ${product.name}`} 
+                         w="full" 
+                         objectFit="cover" 
+                         fallbackSrc="https://placehold.co/800x400/FF0080/white?text=ПОМИЛКА+ЗАВАНТАЖЕННЯ+ФОТО"
+                       />
+                    </Box>
+                 )}
+
+                 <Text color="gray.800" fontSize="md" lineHeight="1.8" whiteSpace="pre-line" fontWeight="500">
+                   {product.description || "Детальний опис товару незабаром з'явиться."}
+                 </Text>
+
                </AccordionPanel>
             </AccordionItem>
           </Accordion>

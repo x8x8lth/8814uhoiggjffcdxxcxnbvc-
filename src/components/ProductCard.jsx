@@ -9,7 +9,6 @@ function ProductCard({ product }) {
   const { addToCart } = useCart()
   const toast = useToast()
 
-  // Перевірка наявності
   const stockCount = product.stockCount !== undefined ? product.stockCount : 999;
   const isOutOfStock = product.inStock === false || stockCount === 0;
 
@@ -17,7 +16,6 @@ function ProductCard({ product }) {
     e.preventDefault() 
     addToCart(product)
     
-    // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ ПРО КОШИК
     toast({
       position: 'top-right',
       duration: 2000,
@@ -46,7 +44,6 @@ function ProductCard({ product }) {
   const handleNotify = (e) => {
     e.preventDefault()
     
-    // 👇 НОВЕ РОЖЕВЕ СПОВІЩЕННЯ ПРО "ПОВІДОМИТИ"
     toast({
       position: "top-right",
       duration: 3000,
@@ -75,7 +72,6 @@ function ProductCard({ product }) {
     })
   }
 
-  // 👇 Логіка тегів (Sale, New, Hit)
   const hasSale = product.label && product.label.toLowerCase().includes('sale');
   const hasNew = product.label && product.label.toLowerCase().includes('new');
   const hasHit = product.label && (product.label.toLowerCase().includes('hit') || product.label.toLowerCase().includes('top'));
@@ -94,7 +90,6 @@ function ProductCard({ product }) {
       flexDirection="column"
       _hover={{ transform: "translateY(-5px)", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
     >
-      {/* ЛЕЙБЛИ ЗЛІВА */}
       <VStack position="absolute" top="12px" left="12px" align="start" spacing={1} zIndex={2}>
           {hasSale && (
              <Badge bg="white" color="#FF0080" border="1px solid #FF0080" px={2} py={1} borderRadius="8px" fontSize="xs" fontWeight="bold">
@@ -113,7 +108,6 @@ function ProductCard({ product }) {
           )}
       </VStack>
 
-      {/* ЛЕЙБЛ "ОЧІКУЄТЬСЯ" */}
       {isOutOfStock && (
         <Badge 
             position="absolute" 
@@ -135,21 +129,20 @@ function ProductCard({ product }) {
         </Badge>
       )}
 
-      {/* Фото */}
-      <Box h="220px" p={6} display="flex" alignItems="center" justifyContent="center" bg="white">
+      {/* 👇 ЗМІНИ ТУТ: Прибрав padding (p={6}) і змінив objectFit на "cover" */}
+      <Box h="250px" display="flex" alignItems="center" justifyContent="center" bg="white" overflow="hidden">
         <Image 
-          src={product.image} // 👈 ТУТ БУЛО ПРОПУЩЕНО src={product.image}
+          src={product.image} 
           alt={product.name} 
-          maxH="100%" 
-          maxW="100%"
-          objectFit="contain" 
+          w="full" // Займає всю ширину
+          h="full" // Займає всю висоту
+          objectFit="cover" // Розтягується, заповнюючи контейнер
           filter={isOutOfStock ? "grayscale(100%)" : "none"}
           opacity={isOutOfStock ? 0.6 : 1} 
-          fallbackSrc="https://placehold.co/200?text=No+Image" // Додав фолбек
+          fallbackSrc="https://placehold.co/400x400?text=No+Image" 
         />
       </Box>
 
-      {/* Контент */}
       <VStack p={5} align="start" spacing={3} flex="1" justify="space-between" bg="white">
         <Box w="full">
           <Text fontSize="xs" color="gray.500" fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
@@ -170,7 +163,6 @@ function ProductCard({ product }) {
           )}
         </Box>
 
-        {/* Чорна тонка лінія */}
         <Box h="1px" bg="black" w="full" opacity={1} />
 
         <Flex w="full" justify="space-between" align="end">
