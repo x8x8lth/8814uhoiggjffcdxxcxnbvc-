@@ -110,12 +110,11 @@ function CategoryPage() {
     }
   }, [allProducts])
 
-  // 👇 ОНОВЛЕНА ФІЛЬТРАЦІЯ
+  // ОНОВЛЕНА ФІЛЬТРАЦІЯ
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) return false
       
-      // ⚠️ ЗМІНА: Тепер перевіряємо, чи є слово 'sale' у label, а не просто oldPrice
       if (filters.onlySale) {
           if (!product.label || !product.label.toLowerCase().includes('sale')) {
               return false;
@@ -154,12 +153,11 @@ function CategoryPage() {
     })
   }, [allProducts, filters, slug])
 
-  // 👇 ОНОВЛЕНЕ СОРТУВАННЯ
+  // ОНОВЛЕНЕ СОРТУВАННЯ
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts]
 
     sorted.sort((a, b) => {
-        // 1. НАЯВНІСТЬ (Спочатку ті, що є)
         const countA = a.stockCount !== undefined ? a.stockCount : 999;
         const isAvailableA = a.inStock !== false && countA > 0;
         const countB = b.stockCount !== undefined ? b.stockCount : 999;
@@ -168,13 +166,10 @@ function CategoryPage() {
         if (isAvailableA && !isAvailableB) return -1;
         if (!isAvailableA && isAvailableB) return 1;
 
-        // 2. ЦІНА
         if (sort === 'low-high') return a.price - b.price
         if (sort === 'high-low') return b.price - a.price
         
-        // 3. РЕЛЕВАНТНІСТЬ (HIT + TOP + SALE -> Зверху)
         if (sort === 'relevance') {
-            // ⚠️ ЗМІНА: Додав перевірку на 'sale'
             const isHitA = a.label && (
                 a.label.toLowerCase().includes('hit') || 
                 a.label.toLowerCase().includes('top') || 
@@ -250,7 +245,7 @@ function CategoryPage() {
         </Flex>
       </Flex>
 
-      <Flex gap={8} align="start">
+      <Flex gap={8} align="start" w="full">
         <Box display={{ base: 'none', md: 'block' }}>
           <FilterSidebar 
             categorySlug={slug} 
@@ -261,10 +256,21 @@ function CategoryPage() {
           />
         </Box>
 
-        <Box flex="1">
+        {/* 👇 ТУТ ВИПРАВЛЕНИЙ КОНТЕЙНЕР: minW="0" w="full" 👇 */}
+        <Box flex="1" minW="0" w="full">
           {currentProducts.length > 0 ? (
             <>
-              <Grid templateColumns={{ base: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} mb={10}>
+              {/* 👇 ТУТ ВИПРАВЛЕНА СІТКА 👇 */}
+              <Grid 
+                templateColumns={{ 
+                  base: "repeat(2, minmax(0, 1fr))", 
+                  md: "repeat(3, minmax(0, 1fr))", 
+                  lg: "repeat(4, minmax(0, 1fr))" 
+                }} 
+                gap={4} 
+                mb={10}
+                alignItems="start"
+              >
                 {currentProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
