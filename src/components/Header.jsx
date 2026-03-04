@@ -37,7 +37,6 @@ const getSmartQueries = (input) => {
   return terms;
 }
 
-// 👇 ОНОВЛЕНИЙ ПЕРЕКЛАДАЧ ПОМИЛОК (ТЕПЕР ДЛЯ ВСІХ ВИПАДКІВ)
 const getFriendlyErrorMessage = (errorCode) => {
   switch (errorCode) {
     case 'auth/missing-password':
@@ -67,7 +66,6 @@ const getFriendlyErrorMessage = (errorCode) => {
     case 'auth/invalid-credential':
       return "ПОМИЛКА ДАНИХ ВХОДУ ❌";
     default:
-      // 👇 Якщо помилка якась дуже рідкісна, виведеться це:
       return "ЩОСЬ ПІШЛО НЕ ТАК. СПРОБУЙТЕ ЩЕ РАЗ 😔";
   }
 }
@@ -80,7 +78,8 @@ function Header() {
   const navigate = useNavigate()
 
   const { currentUser, userData, loginWithGoogle, logout, registerWithEmail, loginWithEmail } = useAuth()
-  const { cart, decreaseQuantity, totalPrice } = useCart()
+  // 👇 ТУТ ЗМІНА: Додав removeFromCart
+  const { cart, removeFromCart, totalPrice } = useCart() 
   
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -172,7 +171,6 @@ function Header() {
           onAuthClose(); 
           showAuthToast("Успішний вхід! 👋", "success");
       } catch (error) { 
-          // 👇 Використовуємо перекладач помилок
           const message = getFriendlyErrorMessage(error.code);
           showAuthToast(message, "error");
       } 
@@ -185,7 +183,6 @@ function Header() {
           onAuthClose(); 
           showAuthToast(isLoginMode ? "Раді бачити! 👋" : "Вітаємо в клубі! 🚀", "success");
       } catch (error) { 
-          // 👇 Використовуємо перекладач помилок
           const message = getFriendlyErrorMessage(error.code);
           showAuthToast(message, "error");
       } 
@@ -355,7 +352,8 @@ function Header() {
                         <Text fontSize="xs" color="gray.500">{item.quantity || 1} x {item.price} ₴ = {(item.quantity || 1) * item.price} ₴</Text>
                       </Box>
                     </Flex>
-                    <IconButton icon={<FiTrash2 />} size="sm" variant="ghost" colorScheme="red" onClick={() => decreaseQuantity(item.id)} />
+                    {/* 👇 ТУТ ЗМІНА: Викликаємо removeFromCart(item.cartItemId) замість decreaseQuantity(item.id) */}
+                    <IconButton icon={<FiTrash2 />} size="sm" variant="ghost" colorScheme="red" onClick={() => removeFromCart(item.cartItemId)} />
                   </Flex>
                 ))}
               </VStack>
