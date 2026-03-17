@@ -30,10 +30,14 @@ const SORT_NAMES = {
 
 const ITEMS_PER_PAGE = 12
 
-// Хелпер для об'єму
+// 👇 ОНОВЛЕНИЙ Хелпер для об'єму (тепер правильно розуміє десяткові дроби)
 const extractVolume = (product) => {
     if (product.volume) {
-        return product.volume.toString().replace(/\D/g, ''); 
+        let str = product.volume.toString().replace(',', '.');
+        let match = str.match(/[0-9.]+/);
+        if (match) {
+            return match[0]; 
+        }
     }
     return null;
 }
@@ -256,11 +260,9 @@ function CategoryPage() {
           />
         </Box>
 
-        {/* 👇 ТУТ ВИПРАВЛЕНИЙ КОНТЕЙНЕР: minW="0" w="full" 👇 */}
         <Box flex="1" minW="0" w="full">
           {currentProducts.length > 0 ? (
             <>
-              {/* 👇 ТУТ ВИПРАВЛЕНА СІТКА 👇 */}
               <Grid 
                 templateColumns={{ 
                   base: "repeat(2, minmax(0, 1fr))", 
