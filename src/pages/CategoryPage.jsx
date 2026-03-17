@@ -30,7 +30,6 @@ const SORT_NAMES = {
 
 const ITEMS_PER_PAGE = 12
 
-// 👇 ОНОВЛЕНИЙ Хелпер для об'єму (тепер правильно розуміє десяткові дроби)
 const extractVolume = (product) => {
     if (product.volume) {
         let str = product.volume.toString().replace(',', '.');
@@ -52,7 +51,7 @@ function CategoryPage() {
 
   const [sort, setSort] = useState('relevance')
   const [filters, setFilters] = useState({
-    priceRange: [0, 10000],
+    priceRange: [0, 3000], // 👈 ЗМІНЕНО НА 3000
     onlySale: false,
     brand: [],
     country: [],
@@ -82,8 +81,10 @@ function CategoryPage() {
 
       setAllProducts(categoryProducts)
       
-      const prices = categoryProducts.map(p => p.price)
-      const maxPrice = prices.length > 0 ? Math.max(...prices) : 1000
+      // 👇 ЗМІНЕНО: Жорсткий ліміт для ціни
+      const prices = categoryProducts.map(p => Number(p.price) || 0)
+      let maxPrice = prices.length > 0 ? Math.max(...prices) : 3000
+      if (maxPrice > 3000) maxPrice = 3000; // Ніколи не буде більше 3000
       setFilters(prev => ({ ...prev, priceRange: [0, maxPrice] }))
       
       setLoading(false)
@@ -114,7 +115,6 @@ function CategoryPage() {
     }
   }, [allProducts])
 
-  // ОНОВЛЕНА ФІЛЬТРАЦІЯ
   const filteredProducts = useMemo(() => {
     return allProducts.filter(product => {
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) return false
@@ -157,7 +157,6 @@ function CategoryPage() {
     })
   }, [allProducts, filters, slug])
 
-  // ОНОВЛЕНЕ СОРТУВАННЯ
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts]
 
@@ -256,7 +255,7 @@ function CategoryPage() {
             filters={filters} 
             setFilters={setFilters} 
             options={filterOptions}
-            minMaxPrice={[0, 10000]} 
+            minMaxPrice={[0, 3000]} // 👈 ЗМІНЕНО НА 3000
           />
         </Box>
 
@@ -374,7 +373,7 @@ function CategoryPage() {
               filters={filters} 
               setFilters={setFilters} 
               options={filterOptions}
-              minMaxPrice={[0, 10000]}
+              minMaxPrice={[0, 3000]} // 👈 ЗМІНЕНО НА 3000 (Для мобілки)
             />
           </DrawerBody>
         </DrawerContent>
