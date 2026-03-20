@@ -5,6 +5,16 @@ import { FiShoppingCart, FiBell } from 'react-icons/fi'
 import { SmallCloseIcon, CheckCircleIcon } from '@chakra-ui/icons' 
 import { useCart } from '../context/CartContext'
 
+// 👇 МАГІЧНА ФУНКЦІЯ ДЛЯ СТИСНЕННЯ ФОТО З CLOUDINARY
+const optimizeImage = (url) => {
+  if (!url) return url;
+  if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+    // Додаємо q_auto (якість), f_auto (формат) та w_500 (ширина 500px)
+    return url.replace('/upload/', '/upload/q_auto,f_auto,w_500/');
+  }
+  return url; 
+};
+
 function ProductCard({ product }) {
   const { addToCart } = useCart()
   const toast = useToast()
@@ -125,18 +135,18 @@ function ProductCard({ product }) {
             alignItems="center"
             gap={1}
         >
-            ОЧІКУЄТЬСЯ <SmallCloseIcon w={3} h={3} />
+             ОЧІКУЄТЬСЯ <SmallCloseIcon w={3} h={3} />
         </Badge>
       )}
 
-      {/* 👇 ЗМІНИ ТУТ: Прибрав padding (p={6}) і змінив objectFit на "cover" */}
       <Box h="250px" display="flex" alignItems="center" justifyContent="center" bg="white" overflow="hidden">
+        {/* 👇 ОСЬ ТУТ ДОДАНО optimizeImage 👇 */}
         <Image 
-          src={product.image} 
+          src={optimizeImage(product.image)} 
           alt={product.name} 
-          w="full" // Займає всю ширину
-          h="full" // Займає всю висоту
-          objectFit="cover" // Розтягується, заповнюючи контейнер
+          w="full" 
+          h="full" 
+          objectFit="cover" 
           filter={isOutOfStock ? "grayscale(100%)" : "none"}
           opacity={isOutOfStock ? 0.6 : 1} 
           fallbackSrc="https://placehold.co/400x400?text=No+Image" 

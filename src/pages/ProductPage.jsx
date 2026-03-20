@@ -31,6 +31,15 @@ const getVariantLabel = (p) => {
   return p.flavor || p.color || p.name
 }
 
+// 👇 ДОДАНО РОЗУМНУ ФУНКЦІЮ (тепер з можливістю вказувати ширину)
+const optimizeImage = (url, width = 800) => {
+  if (!url) return url;
+  if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+    return url.replace('/upload/', `/upload/q_auto,f_auto,w_${width}/`);
+  }
+  return url; 
+};
+
 function ProductPage() {
   const { id } = useParams()
   const { addToCart } = useCart()
@@ -153,7 +162,6 @@ function ProductPage() {
         
         {/* ФОТО */}
         <Box>
-          {/* 👇 ТУТ ЗМІНИ: прибрав p={6} */}
           <Box 
             position="relative" border="2px solid black" borderRadius="24px" overflow="hidden" 
             bg="white" h={{ base: "350px", md: "500px" }} display="flex" align="center" justify="center"
@@ -170,9 +178,9 @@ function ProductPage() {
                 )}
             </VStack>
 
-            {/* 👇 ТУТ ЗМІНИ: objectFit="cover" */}
+            {/* 👇 ЗАСТОСОВАНА ОПТИМІЗАЦІЯ ДЛЯ ГОЛОВНОГО ФОТО (Ширина 800) */}
             <Image 
-              src={product.image || null} 
+              src={product.image ? optimizeImage(product.image, 800) : null} 
               alt={product.name} w="full" h="full" objectFit="cover" 
               filter={isOutOfStock ? "grayscale(100%)" : "none"}
               fallbackSrc="https://via.placeholder.com/400?text=No+Image"
@@ -354,8 +362,9 @@ function ProductPage() {
                  
                  {product.description_image && (
                     <Box w="full" mb={6} borderRadius="16px" overflow="hidden" border="2px solid black" boxShadow="sm">
+                       {/* 👇 ЗАСТОСОВАНА ОПТИМІЗАЦІЯ ДЛЯ ФОТО В ОПИСІ (Ширина 1000) */}
                        <Image 
-                         src={product.description_image.replace(/['"\n\r\s]+/g, '')} 
+                         src={optimizeImage(product.description_image.replace(/['"\n\r\s]+/g, ''), 1000)} 
                          alt={`Огляд ${product.name}`} 
                          w="full" 
                          objectFit="cover" 
@@ -380,6 +389,7 @@ function ProductPage() {
       {relatedProducts.length > 0 && (
           <Box mt={24}>
               <Heading size="lg" mb={8} textTransform="uppercase" borderBottom="3px solid black" pb={2} display="inline-block">Вам може сподобатись</Heading>
+              {/* Тут ProductCard вже має власну оптимізацію всередині! */}
               <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }} gap={6}>
                   {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
               </Grid>
