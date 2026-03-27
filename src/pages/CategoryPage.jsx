@@ -41,6 +41,14 @@ const extractVolume = (product) => {
     return null;
 }
 
+// 👇 НОВА ФУНКЦІЯ: Розумна пагінація (крапочки замість 100 кнопок)
+const getPaginationItems = (current, total) => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+  if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  return [1, '...', current - 1, current, current + 1, '...', total];
+};
+
 function CategoryPage() {
   const { slug } = useParams()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -51,7 +59,7 @@ function CategoryPage() {
 
   const [sort, setSort] = useState('relevance')
   const [filters, setFilters] = useState({
-    priceRange: [0, 3000], // 👈 ЗМІНЕНО НА 3000
+    priceRange: [0, 3000], 
     onlySale: false,
     brand: [],
     country: [],
@@ -81,10 +89,9 @@ function CategoryPage() {
 
       setAllProducts(categoryProducts)
       
-      // 👇 ЗМІНЕНО: Жорсткий ліміт для ціни
       const prices = categoryProducts.map(p => Number(p.price) || 0)
       let maxPrice = prices.length > 0 ? Math.max(...prices) : 3000
-      if (maxPrice > 3000) maxPrice = 3000; // Ніколи не буде більше 3000
+      if (maxPrice > 3000) maxPrice = 3000; 
       setFilters(prev => ({ ...prev, priceRange: [0, maxPrice] }))
       
       setLoading(false)
@@ -255,7 +262,7 @@ function CategoryPage() {
             filters={filters} 
             setFilters={setFilters} 
             options={filterOptions}
-            minMaxPrice={[0, 3000]} // 👈 ЗМІНЕНО НА 3000
+            minMaxPrice={[0, 3000]} 
           />
         </Box>
 
@@ -304,7 +311,7 @@ function CategoryPage() {
                       </Button>
                   )}
 
-                  <HStack spacing={2}>
+                  <Flex wrap="wrap" justify="center" gap={2} w="full">
                     <IconButton 
                         icon={<ChevronLeftIcon w={6} h={6} />}
                         onClick={() => handlePageChange(currentPage - 1)}
@@ -312,31 +319,44 @@ function CategoryPage() {
                         variant="outline"
                         border="2px solid black"
                         borderRadius="12px"
+                        flexShrink={0}
                         _hover={{ bg: "black", color: "white" }}
                         aria-label="Previous Page"
                     />
 
-                    {Array.from({ length: pageCount }, (_, i) => i + 1).map(page => (
-                      <Button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        variant={currentPage === page ? "solid" : "outline"}
-                        bg={currentPage === page ? "black" : "transparent"}
-                        color={currentPage === page ? "white" : "black"}
-                        border="2px solid black"
-                        borderRadius="12px"
-                        w="40px" h="40px"
-                        _hover={{ 
-                            bg: "black", 
-                            color: "white", 
-                            borderColor: "black",
-                            transform: "scale(1.1)"
-                        }}
-                        transition="all 0.2s"
-                      >
-                        {page}
-                      </Button>
-                    ))}
+                    {/* 👇 ЗАСТОСОВУЄМО ФУНКЦІЮ ДЛЯ ВІДОБРАЖЕННЯ КНОПОК */}
+                    {getPaginationItems(currentPage, pageCount).map((item, index) => {
+                      if (item === '...') {
+                        return (
+                          <Center key={`dots-${index}`} w="40px" h="40px" fontWeight="bold" color="gray.500">
+                            ...
+                          </Center>
+                        )
+                      }
+                      
+                      return (
+                        <Button
+                          key={`page-${item}`}
+                          onClick={() => handlePageChange(item)}
+                          variant={currentPage === item ? "solid" : "outline"}
+                          bg={currentPage === item ? "black" : "transparent"}
+                          color={currentPage === item ? "white" : "black"}
+                          border="2px solid black"
+                          borderRadius="12px"
+                          w="40px" h="40px"
+                          flexShrink={0} 
+                          _hover={{ 
+                              bg: "black", 
+                              color: "white", 
+                              borderColor: "black",
+                              transform: "scale(1.1)"
+                          }}
+                          transition="all 0.2s"
+                        >
+                          {item}
+                        </Button>
+                      )
+                    })}
 
                     <IconButton 
                         icon={<ChevronRightIcon w={6} h={6} />}
@@ -345,10 +365,11 @@ function CategoryPage() {
                         variant="outline"
                         border="2px solid black"
                         borderRadius="12px"
+                        flexShrink={0}
                         _hover={{ bg: "black", color: "white" }}
                         aria-label="Next Page"
                     />
-                  </HStack>
+                  </Flex>
 
                 </Flex>
               )}
@@ -373,7 +394,7 @@ function CategoryPage() {
               filters={filters} 
               setFilters={setFilters} 
               options={filterOptions}
-              minMaxPrice={[0, 3000]} // 👈 ЗМІНЕНО НА 3000 (Для мобілки)
+              minMaxPrice={[0, 3000]}
             />
           </DrawerBody>
         </DrawerContent>
