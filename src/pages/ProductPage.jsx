@@ -21,17 +21,25 @@ const ADDONS = [
     { id: 'sour', name: 'Sour booster', price: 30, defaultChecked: false },
 ]
 
+// 👇 ОНОВЛЕНА ФУНКЦІЯ (Тепер зліплює Опір і Об'єм)
 const getVariantLabel = (p) => {
   if (!p) return "Варіант"
+  
   if (p.category === 'parts') {
-    if (p.resistance) return `${p.resistance} Ом`
-    if (p.volume) return `${p.volume} мл`
+    const details = [];
+    if (p.resistance) details.push(`${p.resistance} Ом`);
+    if (p.volume) details.push(`${p.volume} мл`);
+    
+    if (details.length > 0) {
+        return details.join(' | '); 
+    }
+    
     return p.name
   }
+  
   return p.flavor || p.color || p.name
 }
 
-// 👇 ДОДАНО РОЗУМНУ ФУНКЦІЮ (тепер з можливістю вказувати ширину)
 const optimizeImage = (url, width = 800) => {
   if (!url) return url;
   if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
@@ -178,7 +186,6 @@ function ProductPage() {
                 )}
             </VStack>
 
-            {/* 👇 ЗАСТОСОВАНА ОПТИМІЗАЦІЯ ДЛЯ ГОЛОВНОГО ФОТО (Ширина 800) */}
             <Image 
               src={product.image ? optimizeImage(product.image, 800) : null} 
               alt={product.name} w="full" h="full" objectFit="cover" 
@@ -362,7 +369,6 @@ function ProductPage() {
                  
                  {product.description_image && (
                     <Box w="full" mb={6} borderRadius="16px" overflow="hidden" border="2px solid black" boxShadow="sm">
-                       {/* 👇 ЗАСТОСОВАНА ОПТИМІЗАЦІЯ ДЛЯ ФОТО В ОПИСІ (Ширина 1000) */}
                        <Image 
                          src={optimizeImage(product.description_image.replace(/['"\n\r\s]+/g, ''), 1000)} 
                          alt={`Огляд ${product.name}`} 
@@ -389,7 +395,6 @@ function ProductPage() {
       {relatedProducts.length > 0 && (
           <Box mt={24}>
               <Heading size="lg" mb={8} textTransform="uppercase" borderBottom="3px solid black" pb={2} display="inline-block">Вам може сподобатись</Heading>
-              {/* Тут ProductCard вже має власну оптимізацію всередині! */}
               <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }} gap={6}>
                   {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
               </Grid>
