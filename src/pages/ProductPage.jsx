@@ -21,10 +21,8 @@ const ADDONS = [
     { id: 'sour', name: 'Sour booster', price: 30, defaultChecked: false },
 ]
 
-// 👇 ОНОВЛЕНА ФУНКЦІЯ (Тепер зліплює Опір і Об'єм)
 const getVariantLabel = (p) => {
   if (!p) return "Варіант"
-  
   if (p.category === 'parts') {
     const details = [];
     if (p.resistance) details.push(`${p.resistance} Ом`);
@@ -36,7 +34,6 @@ const getVariantLabel = (p) => {
     
     return p.name
   }
-  
   return p.flavor || p.color || p.name
 }
 
@@ -368,12 +365,23 @@ function ProductPage() {
                <AccordionPanel pb={6} px={0}>
                  
                  {product.description_image && (
-                    <Box w="full" mb={6} borderRadius="16px" overflow="hidden" border="2px solid black" boxShadow="sm">
+                    <Box 
+                      // 👇 ЗМІНЕНО: Обмеження ширини, центрування та акуратні відступи
+                      maxW={{ base: "full", md: "500px" }} // Акуратний розмір на десктопі
+                      mx="auto" // Центрування по горизонталі
+                      mb={8} // Більший відступ до тексту
+                      borderRadius="20px" // Більше округлення
+                      overflow="hidden" 
+                      border="2px solid black" 
+                      boxShadow="lg" // Трохи потужніша тінь для ефекту
+                      bg="gray.50" // Фон контейнера, якщо картинка з прозорістю
+                    >
                        <Image 
-                         src={optimizeImage(product.description_image.replace(/['"\n\r\s]+/g, ''), 1000)} 
+                         // 👇 ОНОВЛЕНО: Запит на меншу ширину 800px, f_auto, w_auto
+                         src={optimizeImage(product.description_image.replace(/['"\n\r\s]+/g, ''), 800)} 
                          alt={`Огляд ${product.name}`} 
-                         w="full" 
-                         objectFit="cover" 
+                         w="full" // Розтягуємо фото на всю ширину контейнера (500px)
+                         objectFit="contain" // Щоб нічого не обрізалося (важливо для схем)
                          fallbackSrc="https://placehold.co/800x400/FF0080/white?text=ПОМИЛКА+ЗАВАНТАЖЕННЯ+ФОТО"
                        />
                     </Box>
