@@ -68,7 +68,6 @@ function CartPage() {
     setIsLoadingWarehouses(false);
   }
 
-  // 👇 ФУНКЦІЯ ДЛЯ КАСТОМНИХ СПОВІЩЕНЬ
   const showPinkToast = (title, status = 'error') => {
     toast({
       position: 'top',
@@ -99,7 +98,6 @@ function CartPage() {
     if (cart.length === 0) return
 
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.cityName || !formData.department) {
-      // 👇 ВИКЛИК КАСТОМНОГО СПОВІЩЕННЯ
       showPinkToast("Заповніть всі поля! 😡", "error")
       return
     }
@@ -167,22 +165,19 @@ ${cartItemsText}
         }
       }
 
+      // 👇 ПРОСТО ВІДКРИВАЄМО ВІКНО (БЕЗ ОЧИЩЕННЯ КОШИКА ТУТ)
       onOpen();
-      clearCart();
       
     } catch (error) {
       console.error(error);
-      // 👇 ВИКЛИК КАСТОМНОГО СПОВІЩЕННЯ
       showPinkToast("Помилка! Спробуйте ще раз", "error");
-      // toast({ title: "Помилка замовлення (але ми зберегли його локально)", status: "warning" }); // Старий код
-      
-      // Якщо помилка не критична і ти все одно хочеш показати успіх (як було в оригіналі):
       onOpen();
-      clearCart();
     }
   }
 
+  // 👇 ОЧИЩАЄМО КОШИК ТІЛЬКИ КОЛИ КОРИСТУВАЧ ЗАКРИВАЄ ВІКНО
   const handleCloseSuccess = () => {
+    clearCart(); 
     onClose();
     navigate('/');
     window.location.reload(); 
@@ -318,7 +313,7 @@ ${cartItemsText}
                   <Text fontWeight="bold" mb={3}>💳 Оплата</Text>
                   <RadioGroup onChange={(val) => setFormData({...formData, payment: val})} value={formData.payment}>
                     <Stack direction='column' spacing={3}>
-                      <Radio value='cod' colorScheme="pink" size="lg"><Text fontSize="sm">Накладений платіж</Text></Radio>
+                      <Radio value='cod' colorScheme="pink" size="lg"><Text fontSize="sm">Накладений платіж <Text as="span" color="gray.500">(передоплата 150 грн)</Text></Text></Radio>
                       <Radio value='card' colorScheme="pink" size="lg"><Text fontSize="sm">На картку</Text></Radio>
                     </Stack>
                   </RadioGroup>
@@ -381,7 +376,7 @@ ${cartItemsText}
           
           <ModalBody>
             <Text fontSize="lg" mb={4} fontWeight="bold">Дякуємо, {formData.firstName}!</Text>
-            <Text color="gray.600" mb={6}>Менеджер зв'яжеться з вами.</Text>
+            <Text color="gray.600" mb={6}>Менеджер зв'яжеться з вами найближчим часом.</Text>
             
             {currentUser && pointsToEarn > 0 && (
                 <Box bg="#FF0080" color="white" p={3} borderRadius="12px" fontWeight="bold">

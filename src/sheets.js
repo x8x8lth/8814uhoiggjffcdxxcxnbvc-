@@ -49,7 +49,7 @@ export const fetchProducts = () => {
               label: row.labels,    
               brand: row.brand,
               description: row.description,
-              description_image: row.description_image, // 👇 ДОДАНО ОСЬ ЦЕЙ РЯДОК!
+              description_image: row.description_image, 
               inStock: row.inStock ? row.inStock.toLowerCase() !== 'false' : true,
               flavor: row.flavor,             
               color: row.color,               
@@ -60,7 +60,8 @@ export const fetchProducts = () => {
               powerMode: row.power_mode,      
               controlType: row.control_type,  
               resistance: row.resistance,     
-              volume: row.volume              
+              volume: row.volume,             
+              vg: row.vg // 👇 ДОДАНО ЧИТАННЯ КОЛОНКИ vg З ТАБЛИЦІ!
             }
           })
         resolve(validData)

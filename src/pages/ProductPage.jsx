@@ -346,6 +346,8 @@ function ProductPage() {
                       <FeatureRow label="Бренд" value={product.brand} />
                       <FeatureRow label="Країна" value={product.country} />
                       {product.category === 'liquids' && <FeatureRow label="Смак" value={product.flavor} />}
+                      {/* 👇 ДОДАНО ПАРАМЕТР VG/PG */}
+                      {product.category === 'liquids' && <FeatureRow label="Співвідношення VG/PG" value={product.vg} />}
                       {product.category === 'pods' && <FeatureRow label="Колір" value={product.color} />}
                       {(product.category === 'parts' || product.resistance) && <FeatureRow label="Опір" value={product.resistance && `${product.resistance} Ом`} />}
                       <FeatureRow label="Об'єм" value={product.volume} />
@@ -366,22 +368,20 @@ function ProductPage() {
                  
                  {product.description_image && (
                     <Box 
-                      // 👇 ЗМІНЕНО: Обмеження ширини, центрування та акуратні відступи
-                      maxW={{ base: "full", md: "500px" }} // Акуратний розмір на десктопі
-                      mx="auto" // Центрування по горизонталі
-                      mb={8} // Більший відступ до тексту
-                      borderRadius="20px" // Більше округлення
+                      maxW={{ base: "full", md: "500px" }} 
+                      mx="auto" 
+                      mb={8} 
+                      borderRadius="20px" 
                       overflow="hidden" 
                       border="2px solid black" 
-                      boxShadow="lg" // Трохи потужніша тінь для ефекту
-                      bg="gray.50" // Фон контейнера, якщо картинка з прозорістю
+                      boxShadow="lg" 
+                      bg="gray.50" 
                     >
                        <Image 
-                         // 👇 ОНОВЛЕНО: Запит на меншу ширину 800px, f_auto, w_auto
                          src={optimizeImage(product.description_image.replace(/['"\n\r\s]+/g, ''), 800)} 
                          alt={`Огляд ${product.name}`} 
-                         w="full" // Розтягуємо фото на всю ширину контейнера (500px)
-                         objectFit="contain" // Щоб нічого не обрізалося (важливо для схем)
+                         w="full" 
+                         objectFit="contain" 
                          fallbackSrc="https://placehold.co/800x400/FF0080/white?text=ПОМИЛКА+ЗАВАНТАЖЕННЯ+ФОТО"
                        />
                     </Box>
