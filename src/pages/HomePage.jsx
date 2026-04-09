@@ -11,42 +11,96 @@ import ProductCard from '../components/ProductCard'
 import HomeCarousel from '../components/HomeCarousel' 
 import { fetchProducts } from '../sheets'
 
-// СЛОВНИК СИНОНІМІВ
+// 🚀 МЕГАСЛОВНИК ВЕЙП-ТЕМАТИКИ (синхронізований з SearchResultsPage)
 const SEARCH_DICTIONARY = [
-  ['elf bar', 'elfbar', 'ельф', 'елф', 'ельфбар', 'ельф бар'],
-  ['chaser', 'чейзер', 'чесер', 'чайзер', 'чейз'],
-  ['xros', 'іксрос', 'хрос', 'крос', 'xroz'],
-  ['voopoo', 'вупу', 'вопу', 'драг', 'drag'],
-  ['geekvape', 'гіквейп', 'гік вейп', 'sonder', 'сондер'],
-  ['rf350', 'рф350', 'рф', 'rf'],
-  ['liquid', 'рідина', 'жижа', 'сольова'],
-  ['cartridge', 'картридж', 'катридж', 'іспарік', 'випарник'],
-  ['strawberry', 'полуниця', 'клубніка'],
-  ['watermelon', 'кавун', 'арбуз'],
-  ['melon', 'диня'],
-  ['apple', 'яблуко', 'яблоко'],
-  ['grape', 'виноград'],
-  ['peach', 'персик'],
-  ['mint', 'menthol', 'м\'ята', 'мята', 'ментол'],
-  ['cola', 'кола'],
-  ['banana', 'банан'],
-  ['cherry', 'вишня', 'черешня'],
-  ['blueberry', 'чорниця', 'черника', 'лохина'],
+  // --- БРЕНДИ (Рідини та Поди) ---
+  ['elf bar', 'elfbar', 'ельф', 'елф', 'ельфбар', 'ельф бар', 'elf'],
+  ['chaser', 'чейзер', 'чесер', 'чайзер', 'чейз', 'cheizer'],
+  ['vaporesso', 'вапоресо', 'вапорессо', 'вапор'],
+  ['voopoo', 'вупу', 'вопу', 'вуп'],
+  ['geekvape', 'гіквейп', 'гік вейп', 'geek', 'гік'],
+  ['oxva', 'оксва', 'охва'],
+  ['smok', 'смок'],
+  ['joyetech', 'джойтек', 'джой тек'],
+  ['saltex', 'салтекс', 'салтекс', 'сольтекс'],
+  ['3ger', 'тригер', 'тргер', '3гер'],
+  ['fucked', 'факд', 'факед'],
+  ['flavorlab', 'флаворлаб', 'флейворлаб', 'flavor lab'],
+  ['hype', 'хайп'],
+  ['alchemist', 'алхімік', 'алхіміст', 'алхимик'],
+  ['black', 'блек', 'блэк'],
+  ['octobar', 'октобар', 'окто'],
+  
+  // --- МОДЕЛІ ПОДІВ ---
+  ['xros', 'іксрос', 'хрос', 'крос', 'xroz', 'x-ros'],
+  ['drag', 'драг', 'darg'],
+  ['ursa', 'урса', 'юрса'],
+  ['sonder', 'сондер', 'сандер', 'саундер'],
+  ['rf350', 'рф350', 'рф', 'rf', 'rf 350'],
+  ['minican', 'мінікан', 'миникан', 'мінік'],
+  ['barr', 'барр', 'бар'],
+  ['novo', 'ново'],
+  ['nord', 'норд'],
+  ['jellybox', 'желібокс', 'джелібокс', 'джелі бокс', 'желі'],
+  ['aegis', 'агіс', 'аегіс', 'аегис'],
+  ['q', 'кью', 'кю'],
+
+  // --- КАТЕГОРІЇ ТА СЛЕНГ ---
+  ['liquid', 'рідина', 'жижа', 'сольова', 'сіль', 'salt', 'заправка', 'натуральна', 'органіка'],
+  ['cartridge', 'картридж', 'катридж', 'картік', 'картик', 'pod', 'под', 'карт'],
+  ['coil', 'койл', 'коіл', 'випарник', 'іспарітель', 'испаритель', 'іспарік', 'іспарик'],
+  ['kit', 'набір', 'старт', 'стартовий', 'система', 'под система', 'pod система'],
+
+  // --- СМАКИ: Фрукти та Ягоди ---
+  ['apple', 'яблуко', 'яблоко', 'ябл', 'яблучний'],
+  ['strawberry', 'полуниця', 'клубника', 'клубніка', 'полун', 'суниця'],
+  ['watermelon', 'кавун', 'арбуз', 'арбузний'],
+  ['melon', 'диня', 'дыня'],
   ['mango', 'манго'],
-  ['kiwi', 'ківі'],
-  ['lemon', 'лимон'],
-  ['raspberry', 'малина']
+  ['cherry', 'вишня', 'вишневий', 'черешня'],
+  ['grape', 'виноград', 'грэйп'],
+  ['peach', 'персик', 'піч', 'персиковий'],
+  ['lemon', 'лимон', 'лемон', 'цитрус'],
+  ['blue', 'blueberry', 'чорниця', 'черника', 'лохина'],
+  ['raspberry', 'малина', 'малина', 'малиновий'],
+  ['blackberry', 'ожина', 'ежевика'],
+  ['banana', 'банан', 'банановий'],
+  ['pineapple', 'ананас', 'ананасовий'],
+  ['orange', 'апельсин', 'оранж', 'мандарин'],
+  ['kiwi', 'ківі', 'киви'],
+  ['pomegranate', 'гранат', 'гранатовий'],
+  ['berry', 'ягоди', 'ягідний', 'лесные ягоды', 'berries', 'лісові'],
+  ['mixed', 'мікс', 'микс', 'мульти', 'фруктовий'],
+
+  // --- СМАКИ: Напої, Десерти та Інше ---
+  ['mint', 'м\'ята', 'мята', 'ментол', 'menthol', 'мятний'],
+  ['ice', 'лід', 'холодок', 'айс', 'з льодом', 'холодний', 'холодна', 'ice'],
+  ['tobacco', 'тютюн', 'табак', 'тобак', 'сигаретний'],
+  ['cola', 'кола', 'кола', 'coca'],
+  ['energy', 'енергетик', 'энергетик', 'редбул', 'redbull', 'red bull', 'енерджі'],
+  ['gum', 'жуйка', 'жвачка', 'bubble', 'бабл', 'bubblegum'],
+  ['candy', 'цукерка', 'конфета', 'льодяник', 'мармелад', 'скітлс', 'skittles'],
+  ['cake', 'пиріг', 'пирог', 'торт', 'десерт', 'випічка'],
+  ['donut', 'пончик', 'донат'],
+  ['cream', 'крем', 'вершки', 'сливки', 'морозиво', 'пломбір'],
+  ['coffee', 'кава', 'кофе', 'капучіно'],
+  ['tea', 'чай'],
+  ['sour', 'кислий', 'кисла', 'саур', 'кислинка'],
+  ['sweet', 'солодкий', 'солодка', 'світ']
 ];
 
-const getSmartQueries = (input) => {
-  const lowerInput = input.toLowerCase().trim();
-  let terms = [lowerInput];
-  SEARCH_DICTIONARY.forEach(group => {
-    if (group.some(word => lowerInput.includes(word))) {
-      terms = [...terms, ...group];
-    }
+// РОЗУМНА ФУНКЦІЯ РОЗБИТТЯ ЗАПИТУ НА ГРУПИ СИНОНІМІВ
+const getSmartQueryGroups = (input) => {
+  const words = input.toLowerCase().trim().split(/\s+/);
+  return words.map(word => {
+    let synonyms = [word];
+    SEARCH_DICTIONARY.forEach(group => {
+      if (group.some(gWord => word.includes(gWord) || gWord.includes(word))) {
+        synonyms = [...new Set([...synonyms, ...group])];
+      }
+    });
+    return synonyms; 
   });
-  return terms;
 }
 
 function HomePage() {
@@ -67,22 +121,23 @@ function HomePage() {
     const query = e.target.value
     setSearchQuery(query)
 
-    if (query.length > 1) {
-      const searchTerms = getSmartQueries(query);
+    if (query.trim().length > 1) {
+      // 👇 ОНОВЛЕНИЙ АЛГОРИТМ ПОШУКУ
+      const queryGroups = getSmartQueryGroups(query);
       
       const filtered = products.filter(p => {
-        const pName = p.name ? p.name.toLowerCase() : '';
-        const pBrand = p.brand ? p.brand.toLowerCase() : '';
-        const pCategory = p.category ? p.category.toLowerCase() : '';
-        const pFlavor = p.flavor ? p.flavor.toLowerCase() : ''; 
+        const searchString = [
+            p.name || '',
+            p.brand || '',
+            p.category || '',
+            p.flavor || '',       
+            p.tasteGroup || ''    
+        ].join(' ').toLowerCase();
 
-        return searchTerms.some(term => 
-            pName.includes(term) || 
-            pBrand.includes(term) || 
-            pCategory.includes(term) ||
-            pFlavor.includes(term)
+        return queryGroups.every(synonymGroup => 
+            synonymGroup.some(synonym => searchString.includes(synonym))
         );
-      }).slice(0, 5)
+      }).slice(0, 5) // Залишаємо обмеження в 5 товарів для випадашки
       
       setSearchResults(filtered)
     } else {
