@@ -92,11 +92,49 @@ function ProductPage() {
 
   }, [product, allData])
 
+  // 👇 БРОНЕБІЙНА ЛОГІКА РЕКОМЕНДАЦІЙ (Більше ніколи не зникне)
   const relatedProducts = useMemo(() => {
     if (!product || allData.length === 0) return []
-    return allData
-      .filter(p => p.category === product.category && p.groupId !== product.groupId)
-      .slice(0, 4)
+
+    let candidates = []
+    const cat = product.category;
+    const flav = product.flavor ? product.flavor.toLowerCase().trim() : '';
+    const brnd = product.brand ? product.brand.toLowerCase().trim() : '';
+    const nm = product.name ? product.name.toLowerCase().trim() : '';
+
+    // 1. Шукаємо ідеальні збіги
+    if (cat === 'liquids') {
+      if (flav) {
+        candidates = allData.filter(p => p.category === cat && p.id !== product.id && (p.flavor || '').toLowerCase().trim() === flav);
+      }
+      if (candidates.length < 4 && brnd) {
+        const fallback = allData.filter(p => p.category === cat && p.id !== product.id && (p.brand || '').toLowerCase().trim() === brnd && !candidates.some(c => c.id === p.id));
+        candidates = [...candidates, ...fallback];
+      }
+    } 
+    else if (cat === 'pods') {
+      if (brnd) {
+        candidates = allData.filter(p => p.category === cat && p.id !== product.id && (p.brand || '').toLowerCase().trim() === brnd);
+      }
+    } 
+    else if (cat === 'parts') {
+      if (nm) {
+        candidates = allData.filter(p => p.category === cat && p.id !== product.id && (p.name || '').toLowerCase().trim() === nm);
+      }
+      if (candidates.length < 4 && brnd) {
+        const fallback = allData.filter(p => p.category === cat && p.id !== product.id && (p.brand || '').toLowerCase().trim() === brnd && !candidates.some(c => c.id === p.id));
+        candidates = [...candidates, ...fallback];
+      }
+    }
+
+    // 2. РЯТУВАЛЬНИЙ КРУГ: Якщо ідеальних збігів менше 4, добиваємо будь-якими товарами з цієї ж категорії
+    if (candidates.length < 4) {
+      const finalFallback = allData.filter(p => p.category === cat && p.id !== product.id && !candidates.some(c => c.id === p.id));
+      candidates = [...candidates, ...finalFallback];
+    }
+
+    // 3. Віддаємо рівно 4 штуки
+    return candidates.slice(0, 4)
   }, [product, allData])
 
   const handleBuy = () => {
@@ -346,7 +384,6 @@ function ProductPage() {
                       <FeatureRow label="Бренд" value={product.brand} />
                       <FeatureRow label="Країна" value={product.country} />
                       {product.category === 'liquids' && <FeatureRow label="Смак" value={product.flavor} />}
-                      {/* 👇 ДОДАНО ПАРАМЕТР VG/PG */}
                       {product.category === 'liquids' && <FeatureRow label="Співвідношення VG/PG" value={product.vg} />}
                       {product.category === 'pods' && <FeatureRow label="Колір" value={product.color} />}
                       {(product.category === 'parts' || product.resistance) && <FeatureRow label="Опір" value={product.resistance && `${product.resistance} Ом`} />}
@@ -400,6 +437,7 @@ function ProductPage() {
       
       <ProductReviews product={product} />
 
+      {/* 👇 БЛОК ТЕПЕР НІКОЛИ НЕ ЗНИКНЕ, ЯКЩО Є ХОЧ ЯКІСЬ ТОВАРИ */}
       {relatedProducts.length > 0 && (
           <Box mt={24}>
               <Heading size="lg" mb={8} textTransform="uppercase" borderBottom="3px solid black" pb={2} display="inline-block">Вам може сподобатись</Heading>
