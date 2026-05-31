@@ -105,12 +105,16 @@ function CartPage() {
     const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
     const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
-    const cartItemsText = cart.map(i => {
+const cartItemsText = cart.map(i => {
         let optionsText = '';
         if (i.selectedOptions && i.selectedOptions.length > 0) {
-            optionsText = `\n   └ ➕ ${i.selectedOptions.map(o => o.name).join(', ')}`;
+            optionsText = `\n    └ ➕ ${i.selectedOptions.map(o => o.name).join(', ')}`;
         }
-        return `— ${i.name} (${i.quantity} шт) - ${i.price} грн${optionsText}`;
+        
+        // 👇 БЕРЕМО АБО FULLNAME (де вже є смак), АБО ДОДАЄМО FLAVOR ВРУЧНУ
+        const displayName = i.fullName ? i.fullName : (i.flavor ? `${i.name} (${i.flavor})` : i.name);
+        
+        return `— ${displayName} (${i.quantity} шт) - ${i.price} грн${optionsText}`;
     }).join('\n');
 
     const text = `
