@@ -37,6 +37,7 @@ const getSmartQueries = (input) => {
   return terms;
 }
 
+// 👇 ОСЬ ТУТ Я ОНОВИВ ТЕКСТИ ПОМИЛОК
 const getFriendlyErrorMessage = (errorCode) => {
   switch (errorCode) {
     case 'auth/missing-password':
@@ -44,7 +45,7 @@ const getFriendlyErrorMessage = (errorCode) => {
     case 'auth/wrong-password':
       return "НЕВІРНИЙ ПАРОЛЬ ❌";
     case 'auth/user-not-found':
-      return "ТАКОГО АКАУНТУ НЕ ІСНУЄ 🤷‍♂️";
+      return "ТАКОЇ ПОШТИ НЕ ІСНУЄ. ЗАРЕЄСТРУЙТЕСЬ! 🧐";
     case 'auth/invalid-email':
       return "НЕКОРЕКТНИЙ EMAIL 📧";
     case 'auth/email-already-in-use':
@@ -64,9 +65,9 @@ const getFriendlyErrorMessage = (errorCode) => {
     case 'auth/credential-already-in-use':
       return "ЦЕЙ АКАУНТ ВЖЕ ПРИВ'ЯЗАНИЙ 🔗";
     case 'auth/invalid-credential':
-      return "ПОМИЛКА ДАНИХ ВХОДУ ❌";
+      return "НЕВІРНА ПОШТА АБО ПАРОЛЬ. ВИ ЗАРЕЄСТРОВАНІ? 🤔";
     default:
-      return "ЩОСЬ ПІШЛО НЕ ТАК. СПРОБУЙТЕ ЩЕ РАЗ 😔";
+      return "ВХІД НЕ ВДАВСЯ. ПЕРЕВІРТЕ ДАНІ 😔";
   }
 }
 
@@ -78,7 +79,6 @@ function Header() {
   const navigate = useNavigate()
 
   const { currentUser, userData, loginWithGoogle, logout, registerWithEmail, loginWithEmail } = useAuth()
-  // 👇 ТУТ ЗМІНА: Додав removeFromCart
   const { cart, removeFromCart, totalPrice } = useCart() 
   
   const [name, setName] = useState('')
@@ -352,7 +352,6 @@ function Header() {
                         <Text fontSize="xs" color="gray.500">{item.quantity || 1} x {item.price} ₴ = {(item.quantity || 1) * item.price} ₴</Text>
                       </Box>
                     </Flex>
-                    {/* 👇 ТУТ ЗМІНА: Викликаємо removeFromCart(item.cartItemId) замість decreaseQuantity(item.id) */}
                     <IconButton icon={<FiTrash2 />} size="sm" variant="ghost" colorScheme="red" onClick={() => removeFromCart(item.cartItemId)} />
                   </Flex>
                 ))}
