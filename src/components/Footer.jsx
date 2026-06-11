@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { 
-  Box, Container, SimpleGrid, Stack, Text, Link, Image, IconButton, 
+  Box, Container, Grid, GridItem, Stack, Text, Link, Image, IconButton, 
   Input, Button, InputGroup, InputRightElement, Divider, Flex, Icon, useToast 
 } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
@@ -134,83 +134,92 @@ function Footer() {
 
       {/* Основна частина */}
       <Container maxW="container.xl" py={12}>
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={10}>
+        {/* 👇 ТУТ ПОЧИНАЄТЬСЯ НОВА СІТКА */}
+        <Grid templateColumns={{ base: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={10}>
           
-          {/* 1. БРЕНД */}
-          <Stack spacing={6}>
-            <Box>
-              <Image 
-                src="https://i.ibb.co/pvm42BVB/image-2026-01-13-13-02-52-1.png" 
-                alt="Smoke House" 
-                h="60px" 
-                objectFit="contain" 
-              />
-            </Box>
-            <Text color="gray.400" fontSize="sm">
-              Твій провідник у світ густої пари. Тільки оригінальна продукція, швидка доставка та чоткі ціни
-            </Text>
-            <Stack direction="row" spacing={4}>
-              <SocialBtn icon={<FaTelegram />} href="https://t.me/Manager_Smoke1" />
-              <SocialBtn icon={<FaInstagram />} href="https://www.instagram.com/smoke_house.vyshneve/" />
-              <SocialBtn icon={<FaTiktok />} href="https://www.tiktok.com/@housee.shop" />
+          {/* 1. БРЕНД (На телефоні займає всю ширину - 2 колонки) */}
+          <GridItem colSpan={{ base: 2, lg: 1 }}>
+            <Stack spacing={6}>
+              <Box>
+                <Image 
+                  src="https://i.ibb.co/pvm42BVB/image-2026-01-13-13-02-52-1.png" 
+                  alt="Smoke House" 
+                  h="60px" 
+                  objectFit="contain" 
+                />
+              </Box>
+              <Text color="gray.400" fontSize="sm">
+                Твій провідник у світ густої пари. Тільки оригінальна продукція, швидка доставка та чоткі ціни
+              </Text>
+              <Stack direction="row" spacing={4}>
+                <SocialBtn icon={<FaTelegram />} href="https://t.me/Manager_Smoke1" />
+                <SocialBtn icon={<FaInstagram />} href="https://www.instagram.com/smoke_house.vyshneve/" />
+                <SocialBtn icon={<FaTiktok />} href="https://www.tiktok.com/@housee.shop" />
+              </Stack>
             </Stack>
-          </Stack>
+          </GridItem>
 
-          {/* 2. КАТАЛОГ */}
-          <Stack align={{ base: "flex-start", md: "flex-start" }}>
-            <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>КАТАЛОГ</Text>
-            <FooterLink to="/category/sales">Акції</FooterLink>
-            <FooterLink to="/category/new">Новинки</FooterLink>
-            <FooterLink to="/category/liquids">Рідини</FooterLink>
-            <FooterLink to="/category/pods">Pod-системи</FooterLink>
-            <FooterLink to="/category/parts">Комплектуючі</FooterLink>
-          </Stack>
+          {/* 2. КАТАЛОГ (На телефоні займає 1 колонку - 50%) */}
+          <GridItem colSpan={1}>
+            <Stack align="flex-start">
+              <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>КАТАЛОГ</Text>
+              <FooterLink to="/category/sales">Акції</FooterLink>
+              <FooterLink to="/category/new">Новинки</FooterLink>
+              <FooterLink to="/category/liquids">Рідини</FooterLink>
+              <FooterLink to="/category/pods">Pod-системи</FooterLink>
+              <FooterLink to="/category/parts">Комплектуючі</FooterLink>
+            </Stack>
+          </GridItem>
 
-          {/* 3. КЛІЄНТАМ */}
-          <Stack align={{ base: "flex-start", md: "flex-start" }}>
-            <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>ІНФО</Text>
-            <FooterLink to="/about">Про нас</FooterLink>
-            <FooterLink to="/delivery">Доставка та оплата</FooterLink>
-            <FooterLink to="/offer">Публічна оферта</FooterLink>
-            <FooterLink to="/contacts">Контакти</FooterLink>
-          </Stack>
+          {/* 3. КЛІЄНТАМ (На телефоні займає 1 колонку - 50%) */}
+          <GridItem colSpan={1}>
+            <Stack align="flex-start">
+              <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>ІНФО</Text>
+              <FooterLink to="/about">Про нас</FooterLink>
+              <FooterLink to="/delivery">Доставка та оплата</FooterLink>
+              <FooterLink to="/offer">Публічна оферта</FooterLink>
+              <FooterLink to="/contacts">Контакти</FooterLink>
+            </Stack>
+          </GridItem>
 
-          {/* 4. КОНТАКТИ */}
-          <Stack spacing={4}>
-            <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>КОНТАКТИ</Text>
-            
-            <Flex align="center" gap={3}>
-              <Icon as={FiPhone} color="gray.400" />
-              <Link href="tel:+380973043637" _hover={{ color: PINK_COLOR }} fontWeight="bold">
-                +380 97 304 36 37
-              </Link>
-            </Flex>
-            
-            <Flex align="center" gap={3}>
-              <Icon as={FiMail} color="gray.400" />
-              <Link href="mailto:smokehouse01x@gmail.com" _hover={{ color: PINK_COLOR }}>
-                smokehouse01x@gmail.com
-              </Link>
-            </Flex>
+          {/* 4. КОНТАКТИ (На телефоні займає всю ширину - 2 колонки) */}
+          <GridItem colSpan={{ base: 2, lg: 1 }}>
+            <Stack spacing={4}>
+              <Text fontWeight="bold" fontSize="lg" mb={2} color={PINK_COLOR}>КОНТАКТИ</Text>
+              
+              <Flex align="center" gap={3}>
+                <Icon as={FiPhone} color="gray.400" />
+                <Link href="tel:+380973043637" _hover={{ color: PINK_COLOR }} fontWeight="bold">
+                  +380 97 304 36 37
+                </Link>
+              </Flex>
+              
+              <Flex align="center" gap={3}>
+                <Icon as={FiMail} color="gray.400" />
+                <Link href="mailto:smokehouse01x@gmail.com" _hover={{ color: PINK_COLOR }}>
+                  smokehouse01x@gmail.com
+                </Link>
+              </Flex>
 
-            {/* Магазин 1 */}
-            <Flex align="start" gap={3}>
-              <Icon as={FiMapPin} color="#FF0080" mt={1} />
-              <Text color="gray.400">
-                смт. Калинівка,<br /> Центральна вулиця, 33
-              </Text>
-            </Flex>
+              {/* Магазин 1 */}
+              <Flex align="start" gap={3}>
+                <Icon as={FiMapPin} color="#FF0080" mt={1} />
+                <Text color="gray.400">
+                  смт. Калинівка,<br /> Центральна вулиця, 33
+                </Text>
+              </Flex>
 
-            {/* Магазин 2 */}
-            <Flex align="start" gap={3}>
-              <Icon as={FiMapPin} color="#FF0080" mt={1} />
-              <Text color="gray.400">
-                м. Вишневе,<br /> вул. Лесі Українки, 66
-              </Text>
-            </Flex>
-          </Stack>
+              {/* Магазин 2 */}
+              <Flex align="start" gap={3}>
+                <Icon as={FiMapPin} color="#FF0080" mt={1} />
+                <Text color="gray.400">
+                  м. Вишневе,<br /> вул. Лесі Українки, 66
+                </Text>
+              </Flex>
+            </Stack>
+          </GridItem>
 
-        </SimpleGrid>
+        </Grid>
 
         <Divider my={10} borderColor="#333" />
 
