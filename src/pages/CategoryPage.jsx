@@ -312,15 +312,16 @@ function CategoryPage() {
                       </Button>
                   )}
 
-                  <Flex wrap="wrap" justify="center" gap={2} w="full">
+                  <Flex wrap="wrap" justify="center" gap={{ base: 1, sm: 2 }} w="full">
                     <IconButton 
-                        icon={<ChevronLeftIcon w={6} h={6} />}
+                        icon={<ChevronLeftIcon w={{ base: 5, sm: 6 }} h={{ base: 5, sm: 6 }} />}
                         onClick={() => handlePageChange(currentPage - 1)}
                         isDisabled={currentPage === 1}
                         variant="outline"
                         border="2px solid black"
                         borderRadius="12px"
                         flexShrink={0}
+                        w={{ base: "32px", sm: "40px" }} h={{ base: "32px", sm: "40px" }} minW="0"
                         _hover={{ bg: "black", color: "white" }}
                         aria-label="Previous Page"
                     />
@@ -329,7 +330,7 @@ function CategoryPage() {
                     {getPaginationItems(currentPage, pageCount).map((item, index) => {
                       if (item === '...') {
                         return (
-                          <Center key={`dots-${index}`} w="40px" h="40px" fontWeight="bold" color="gray.500">
+                          <Center key={`dots-${index}`} w={{ base: "32px", sm: "40px" }} h={{ base: "32px", sm: "40px" }} fontWeight="bold" color="gray.500">
                             ...
                           </Center>
                         )
@@ -344,7 +345,9 @@ function CategoryPage() {
                           color={currentPage === item ? "white" : "black"}
                           border="2px solid black"
                           borderRadius="12px"
-                          w="40px" h="40px"
+                          w={{ base: "32px", sm: "40px" }} h={{ base: "32px", sm: "40px" }} minW="0"
+                          p={0}
+                          fontSize={{ base: "sm", sm: "md" }}
                           flexShrink={0} 
                           _hover={{ 
                               bg: "black", 
@@ -360,13 +363,14 @@ function CategoryPage() {
                     })}
 
                     <IconButton 
-                        icon={<ChevronRightIcon w={6} h={6} />}
+                        icon={<ChevronRightIcon w={{ base: 5, sm: 6 }} h={{ base: 5, sm: 6 }} />}
                         onClick={() => handlePageChange(currentPage + 1)}
                         isDisabled={currentPage === pageCount}
                         variant="outline"
                         border="2px solid black"
                         borderRadius="12px"
                         flexShrink={0}
+                        w={{ base: "32px", sm: "40px" }} h={{ base: "32px", sm: "40px" }} minW="0"
                         _hover={{ bg: "black", color: "white" }}
                         aria-label="Next Page"
                     />
