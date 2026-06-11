@@ -21,7 +21,9 @@ export const fetchProducts = async () => {
         category: row.category ? row.category.trim().toLowerCase() : "",
         label: row.label || row.labels || "",
         tasteGroup: row.tasteGroup || row.taste_group || "",
-        groupId: row.groupId || row.group_id || row['Group ID'] || row.GroupId || null
+        groupId: row.groupId || row.group_id || row['Group ID'] || row.GroupId || null,
+        // 👇 ОСЬ ЦЕЙ РЯДОК ВСЕ ЛАГОДИТЬ
+        stockCount: Number(row.quantity) || 100 
       };
     });
     

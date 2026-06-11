@@ -37,7 +37,6 @@ const getSmartQueries = (input) => {
   return terms;
 }
 
-// 👇 ОСЬ ТУТ Я ОНОВИВ ТЕКСТИ ПОМИЛОК
 const getFriendlyErrorMessage = (errorCode) => {
   switch (errorCode) {
     case 'auth/missing-password':
@@ -79,7 +78,9 @@ function Header() {
   const navigate = useNavigate()
 
   const { currentUser, userData, loginWithGoogle, logout, registerWithEmail, loginWithEmail } = useAuth()
-  const { cart, removeFromCart, totalPrice } = useCart() 
+  
+  // 👇 ТУТ ЗМІНА: Додано increaseQuantity та decreaseQuantity
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, totalPrice } = useCart() 
   
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -344,12 +345,25 @@ function Header() {
             ) : (
               <VStack spacing={0} divider={<Divider borderColor="black" opacity={1} borderBottomWidth="1px" />}>
                 {cart.map((item) => (
-                  <Flex key={item.id} w="full" p={4} align="center" justify="space-between">
-                    <Flex align="center">
-                      <Image src={item.image} w="50px" h="50px" objectFit="contain" mr={4} borderRadius="8px" border="1px solid black" />
-                      <Box>
-                        <Text fontSize="sm" fontWeight="bold" noOfLines={1}>{item.name}</Text>
-                        <Text fontSize="xs" color="gray.500">{item.quantity || 1} x {item.price} ₴ = {(item.quantity || 1) * item.price} ₴</Text>
+                  <Flex key={item.cartItemId || item.id} w="full" p={4} align="center" justify="space-between">
+                    <Flex align="center" flex={1} overflow="hidden" mr={2}>
+                      <Image src={item.image} w="50px" h="50px" objectFit="contain" mr={4} borderRadius="8px" border="1px solid black" flexShrink={0} />
+                      <Box flex={1}>
+                        {/* 👇 Відображення смаку */}
+                        <Text fontSize="sm" fontWeight="bold" noOfLines={2}>
+                          {item.fullName ? item.fullName : (item.flavor ? `${item.name} (${item.flavor})` : item.name)}
+                        </Text>
+                        
+                        <Flex align="center" mt={2} gap={3}>
+                          {/* 👇 Кнопки плюс/мінус */}
+                          <Flex border="1px solid black" borderRadius="8px" align="center" overflow="hidden">
+                            <Button size="xs" variant="ghost" onClick={() => decreaseQuantity(item.cartItemId)} isDisabled={(item.quantity || 1) <= 1} borderRadius="0" px={2}>-</Button>
+                            <Text fontSize="xs" fontWeight="bold" w="16px" textAlign="center">{item.quantity || 1}</Text>
+                            <Button size="xs" variant="ghost" onClick={() => increaseQuantity(item.cartItemId)} isDisabled={(item.quantity || 1) >= (item.stockCount || 999)} borderRadius="0" px={2}>+</Button>
+                          </Flex>
+                          
+                          <Text fontSize="xs" fontWeight="bold">{item.price * (item.quantity || 1)} ₴</Text>
+                        </Flex>
                       </Box>
                     </Flex>
                     <IconButton icon={<FiTrash2 />} size="sm" variant="ghost" colorScheme="red" onClick={() => removeFromCart(item.cartItemId)} />

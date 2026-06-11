@@ -17,7 +17,6 @@ function Footer() {
 
   const handleSubscribe = async () => {
     if (!email || !email.includes('@')) {
-      // 👇 1. СПОВІЩЕННЯ ПРО ПОМИЛКУ ВВОДУ
       toast({
         position: "bottom-right",
         duration: 3000,
@@ -51,7 +50,6 @@ function Footer() {
           console.log("Токен не налаштовано, імітуємо успіх");
       }
 
-      // 👇 2. СПОВІЩЕННЯ ПРО УСПІХ
       toast({ 
         position: "bottom-right",
         duration: 3000, 
@@ -71,7 +69,6 @@ function Footer() {
 
     } catch (error) {
       console.error(error)
-      // 👇 3. СПОВІЩЕННЯ ПРО ПОМИЛКУ СЕРВЕРА
       toast({ 
         position: "bottom-right",
         render: () => (
@@ -134,8 +131,8 @@ function Footer() {
 
       {/* Основна частина */}
       <Container maxW="container.xl" py={12}>
-        {/* 👇 ТУТ ПОЧИНАЄТЬСЯ НОВА СІТКА */}
-        <Grid templateColumns={{ base: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={10}>
+        {/* 👇 ТУТ ПОЧИНАЄТЬСЯ АДАПТИВНА СІТКА */}
+        <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={10}>
           
           {/* 1. БРЕНД (На телефоні займає всю ширину - 2 колонки) */}
           <GridItem colSpan={{ base: 2, lg: 1 }}>

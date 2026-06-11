@@ -97,7 +97,8 @@ function CartPage() {
   const handleOrder = async () => {
     if (cart.length === 0) return
 
-    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.cityName || !formData.department) {
+    // 👇 ДОДАНО ПЕРЕВІРКУ НА formData.telegram
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.telegram || !formData.cityName || !formData.department) {
       showPinkToast("Заповніть всі поля! 😡", "error")
       return
     }
@@ -111,7 +112,6 @@ const cartItemsText = cart.map(i => {
             optionsText = `\n    └ ➕ ${i.selectedOptions.map(o => o.name).join(', ')}`;
         }
         
-        // 👇 БЕРЕМО АБО FULLNAME (де вже є смак), АБО ДОДАЄМО FLAVOR ВРУЧНУ
         const displayName = i.fullName ? i.fullName : (i.flavor ? `${i.name} (${i.flavor})` : i.name);
         
         return `— ${displayName} (${i.quantity} шт) - ${i.price} грн${optionsText}`;
@@ -121,7 +121,7 @@ const cartItemsText = cart.map(i => {
 🔥 *НОВЕ ЗАМОВЛЕННЯ!*
 👤 *Клієнт:* ${formData.lastName} ${formData.firstName}
 📞 *Телефон:* ${formData.phone}
-✈️ *Telegram:* ${formData.telegram || '-'}
+✈️ *Telegram:* ${formData.telegram}
 
 💰 *СУМА:* ${totalPrice} грн
 🎁 *Бали:* ${usePoints ? `Списано ${discount} (нові не нараховані)` : 'Не списано'}
@@ -169,7 +169,6 @@ ${cartItemsText}
         }
       }
 
-      // 👇 ПРОСТО ВІДКРИВАЄМО ВІКНО (БЕЗ ОЧИЩЕННЯ КОШИКА ТУТ)
       onOpen();
       
     } catch (error) {
@@ -179,7 +178,6 @@ ${cartItemsText}
     }
   }
 
-  // 👇 ОЧИЩАЄМО КОШИК ТІЛЬКИ КОЛИ КОРИСТУВАЧ ЗАКРИВАЄ ВІКНО
   const handleCloseSuccess = () => {
     clearCart(); 
     onClose();
@@ -221,7 +219,9 @@ ${cartItemsText}
 
                 <VStack align={{ base: "center", sm: "start" }} flex={1} spacing={1} textAlign={{ base: "center", sm: "left" }}>
                   <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">{item.category}</Text>
-                  <Heading size="sm" noOfLines={2}>{item.name}</Heading>
+                  <Heading size="sm" noOfLines={2}>
+                    {item.fullName ? item.fullName : (item.flavor ? `${item.name} (${item.flavor})` : item.name)}
+                  </Heading>
                   
                   {item.selectedOptions && item.selectedOptions.length > 0 && (
                       <Flex wrap="wrap" gap={1} justify={{ base: "center", sm: "start" }}>
@@ -273,7 +273,8 @@ ${cartItemsText}
                       <CustomInput name="middleName" label="По батькові" placeholder="Іванович" value={formData.middleName} onChange={handleInputChange} />
                     </SimpleGrid>
                     <CustomInput name="phone" label="Телефон" placeholder="+380 99 000 00 00" value={formData.phone} onChange={handleInputChange} />
-                    <CustomInput name="telegram" label="Telegram (не обов'язково)" placeholder="@username" value={formData.telegram} onChange={handleInputChange} />
+                    {/* 👇 ЗМІНЕНО НАПИС ТУТ */}
+                    <CustomInput name="telegram" label="Telegram" placeholder="@username" value={formData.telegram} onChange={handleInputChange} />
                     <CustomInput name="email" label="Ел. пошта" placeholder="mail@gmail.com" value={formData.email} onChange={handleInputChange} />
                   </VStack>
                 </Box>
