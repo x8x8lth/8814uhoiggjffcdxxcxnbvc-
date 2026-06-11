@@ -56,6 +56,7 @@ function CategoryPage() {
   const [allProducts, setAllProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [maxCategoryPrice, setMaxCategoryPrice] = useState(3000) // 👇 ДОДАНО ДЛЯ ПОВЗУНКА ЦІНИ
 
   const [sort, setSort] = useState('relevance')
   const [filters, setFilters] = useState({
@@ -91,7 +92,7 @@ function CategoryPage() {
       
       const prices = categoryProducts.map(p => Number(p.price) || 0)
       let maxPrice = prices.length > 0 ? Math.max(...prices) : 3000
-      if (maxPrice > 3000) maxPrice = 3000; 
+      setMaxCategoryPrice(maxPrice) // 👇 ТЕПЕР ЗБЕРІГАЄМО РЕАЛЬНУ МАКСИМАЛЬНУ ЦІНУ
       setFilters(prev => ({ ...prev, priceRange: [0, maxPrice] }))
       
       setLoading(false)
@@ -262,7 +263,7 @@ function CategoryPage() {
             filters={filters} 
             setFilters={setFilters} 
             options={filterOptions}
-            minMaxPrice={[0, 3000]} 
+            minMaxPrice={[0, maxCategoryPrice]} // 👇 ЗМІНЕНО З ЖОРСТКИХ 3000
           />
         </Box>
 
@@ -394,7 +395,7 @@ function CategoryPage() {
               filters={filters} 
               setFilters={setFilters} 
               options={filterOptions}
-              minMaxPrice={[0, 3000]}
+              minMaxPrice={[0, maxCategoryPrice]} // 👇 ЗМІНЕНО З ЖОРСТКИХ 3000
             />
           </DrawerBody>
         </DrawerContent>
