@@ -97,7 +97,6 @@ function CartPage() {
   const handleOrder = async () => {
     if (cart.length === 0) return
 
-    // 👇 ДОДАНО ПЕРЕВІРКУ НА formData.telegram
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.telegram || !formData.cityName || !formData.department) {
       showPinkToast("Заповніть всі поля! 😡", "error")
       return
@@ -212,48 +211,44 @@ ${cartItemsText}
             const isMaxReached = currentQty >= maxQty;
 
             return (
-              <Flex key={item.cartItemId} w="full" bg="white" p={4} align="center" border="2px solid black" borderRadius="16px" direction={{ base: "column", sm: "row" }} gap={{ base: 4, sm: 0 }}>
-                <Box w="80px" h="80px" mr={{ base: 0, sm: 4 }} border="1px solid #eee" borderRadius="12px" p={2} flexShrink={0}>
-                  <Image src={item.image} w="full" h="full" objectFit="contain" fallbackSrc="https://placehold.co/100?text=No+Img" />
-                </Box>
-
-                <VStack align={{ base: "center", sm: "start" }} flex={1} spacing={1} textAlign={{ base: "center", sm: "left" }}>
-                  <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">{item.category}</Text>
-                  <Heading size="sm" noOfLines={2}>
-                    {item.fullName ? item.fullName : (item.flavor ? `${item.name} (${item.flavor})` : item.name)}
-                  </Heading>
+              <Flex key={item.cartItemId} w="full" bg="white" p={4} align="center" border="2px solid black" borderRadius="16px" direction="row" justify="space-between">
+                <Flex align="center" flex={1} overflow="hidden">
+                  <Image src={item.image} w={{ base: "60px", sm: "80px" }} h={{ base: "60px", sm: "80px" }} objectFit="contain" mr={4} borderRadius="12px" border="1px solid #eee" flexShrink={0} fallbackSrc="https://placehold.co/100?text=No+Img" />
                   
-                  {item.selectedOptions && item.selectedOptions.length > 0 && (
-                      <Flex wrap="wrap" gap={1} justify={{ base: "center", sm: "start" }}>
-                          {item.selectedOptions.map((opt, idx) => (
-                              <Badge key={idx} colorScheme="purple" fontSize="0.7em" borderRadius="4px">
-                                  + {opt.name}
-                              </Badge>
-                          ))}
-                      </Flex>
-                  )}
-
-                  <Text fontWeight="900" fontSize="lg" color="black">
-                    {item.price * currentQty} ₴ 
-                    {!usePoints && item.points > 0 && (
-                      <Text as="span" fontSize="xs" color="#FF0080" ml={2}>+{item.points * currentQty} балів</Text>
+                  <Box flex={1} pr={2}>
+                    <Text fontSize="xs" fontWeight="bold" color="gray.400" textTransform="uppercase">{item.category}</Text>
+                    <Heading size="sm" noOfLines={2}>
+                      {item.fullName ? item.fullName : (item.flavor ? `${item.name} (${item.flavor})` : item.name)}
+                    </Heading>
+                    
+                    {item.selectedOptions && item.selectedOptions.length > 0 && (
+                        <Flex wrap="wrap" gap={1} mt={1}>
+                            {item.selectedOptions.map((opt, idx) => (
+                                <Badge key={idx} colorScheme="purple" fontSize="0.7em" borderRadius="4px">
+                                    + {opt.name}
+                                </Badge>
+                            ))}
+                        </Flex>
                     )}
-                  </Text>
-                </VStack>
 
-                <HStack spacing={3} ml={{ base: 0, sm: 4 }}>
-                  <IconButton icon={<MinusIcon w={3} h={3} />} size="sm" isRound variant="outline" border="2px solid black" onClick={() => decreaseQuantity(item.cartItemId)} isDisabled={currentQty <= 1} />
-                  <Text fontWeight="bold" fontSize="lg" w="20px" textAlign="center">{currentQty}</Text>
-                  <IconButton 
-                    icon={<AddIcon w={3} h={3} />} 
-                    size="sm" isRound variant="outline" 
-                    border="2px solid black" 
-                    onClick={() => increaseQuantity(item.cartItemId)} 
-                    isDisabled={isMaxReached} 
-                  />
-                </HStack>
+                    <Flex align="center" mt={2} gap={{ base: 2, sm: 4 }} flexWrap="wrap">
+                        <Flex border="2px solid black" borderRadius="8px" align="center" overflow="hidden">
+                          <Button size="xs" variant="ghost" onClick={() => decreaseQuantity(item.cartItemId)} isDisabled={currentQty <= 1} borderRadius="0" px={2}>-</Button>
+                          <Text fontSize="xs" fontWeight="bold" w="20px" textAlign="center">{currentQty}</Text>
+                          <Button size="xs" variant="ghost" onClick={() => increaseQuantity(item.cartItemId)} isDisabled={isMaxReached} borderRadius="0" px={2}>+</Button>
+                        </Flex>
 
-                <IconButton icon={<DeleteIcon />} variant="ghost" colorScheme="red" size="lg" ml={{ base: 0, sm: 2 }} onClick={() => removeFromCart(item.cartItemId)} borderRadius="12px" />
+                        <Text fontWeight="900" fontSize={{ base: "sm", sm: "lg" }} color="black">
+                          {item.price * currentQty} ₴ 
+                          {!usePoints && item.points > 0 && (
+                            <Text as="span" fontSize="xs" color="#FF0080" ml={1}>+{item.points * currentQty} балів</Text>
+                          )}
+                        </Text>
+                    </Flex>
+                  </Box>
+                </Flex>
+                
+                <IconButton icon={<DeleteIcon />} variant="ghost" colorScheme="red" size="md" onClick={() => removeFromCart(item.cartItemId)} flexShrink={0} />
               </Flex>
             )
           })}
@@ -273,7 +268,6 @@ ${cartItemsText}
                       <CustomInput name="middleName" label="По батькові" placeholder="Іванович" value={formData.middleName} onChange={handleInputChange} />
                     </SimpleGrid>
                     <CustomInput name="phone" label="Телефон" placeholder="+380 99 000 00 00" value={formData.phone} onChange={handleInputChange} />
-                    {/* 👇 ЗМІНЕНО НАПИС ТУТ */}
                     <CustomInput name="telegram" label="Telegram" placeholder="@username" value={formData.telegram} onChange={handleInputChange} />
                     <CustomInput name="email" label="Ел. пошта" placeholder="mail@gmail.com" value={formData.email} onChange={handleInputChange} />
                   </VStack>
