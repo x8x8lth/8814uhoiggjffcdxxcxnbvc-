@@ -19,6 +19,7 @@ import SearchResultsPage from './pages/SearchResultsPage'
 // 👇 НОВІ СТОРІНКИ
 import DeliveryPage from './pages/DeliveryPage'
 import OfferPage from './pages/OfferPage'
+import ReviewsPage from './pages/ReviewsPage'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           {/* 👇 НОВІ МАРШРУТИ */}
           <Route path="/delivery" element={<DeliveryPage />} />
           <Route path="/offer" element={<OfferPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
         </Routes>
       </Box>
 
