@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react'
 import Header from './components/Header'
 import AgeVerificationModal from './components/AgeVerificationModal'
 import Footer from './components/Footer' 
+import ScrollToTop from './components/ScrollToTop' // 👈 Додали імпорт модуля
 
 // Імпорт сторінок
 import HomePage from './pages/HomePage'
@@ -16,7 +17,7 @@ import AboutPage from './pages/AboutPage'
 import ContactsPage from './pages/ContactsPage'
 import SearchResultsPage from './pages/SearchResultsPage'
 
-// 👇 НОВІ СТОРІНКИ
+// НОВІ СТОРІНКИ
 import DeliveryPage from './pages/DeliveryPage'
 import OfferPage from './pages/OfferPage'
 import ReviewsPage from './pages/ReviewsPage'
@@ -24,6 +25,9 @@ import ReviewsPage from './pages/ReviewsPage'
 function App() {
   return (
     <Box minH="100vh" display="flex" flexDirection="column">
+      {/* 👇 ДОДАНО МОДУЛЬ ScrollToTop (працює глобально для всіх сторінок) */}
+      <ScrollToTop />
+      
       {/* Перевірка віку */}
       <AgeVerificationModal />
       
@@ -41,7 +45,7 @@ function App() {
           <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/search" element={<SearchResultsPage />} />
           
-          {/* 👇 НОВІ МАРШРУТИ */}
+          {/* НОВІ МАРШРУТИ */}
           <Route path="/delivery" element={<DeliveryPage />} />
           <Route path="/offer" element={<OfferPage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
