@@ -52,24 +52,18 @@ function ContactsPage() {
           {/* 👇 ТУТ ТЕПЕР ДВІ КНОПКИ ІНСТАГРАМ */}
           <ContactCard 
             icon={FaInstagram} 
-            title="Наші Instagram"  
-            subText="Обери своє місто:"
+            title="Наш Instagram"  
+            
             action={
               <VStack w="full" spacing={2} mt={2}>
                  <Button 
-                    as="a" href="https://www.instagram.com/smoke_house.kalinovka/" target="_blank"
+                    as="a" href="https://www.instagram.com/smokehousevape.com.ua/" target="_blank"
                     size="sm" w="full" colorScheme="pink" variant="solid" borderRadius="12px"
                     leftIcon={<Icon as={FaInstagram} />}
                   >
-                    Калинівка
+                
                   </Button>
-                  <Button 
-                    as="a" href="https://www.instagram.com/smoke_house.vyshneve/" target="_blank"
-                    size="sm" w="full" colorScheme="pink" variant="solid" borderRadius="12px"
-                    leftIcon={<Icon as={FaInstagram} />}
-                  >
-                    Вишневе
-                  </Button>
+                 
               </VStack>
             }
           />
@@ -92,23 +86,7 @@ function ContactsPage() {
              Наші Магазини
         </Heading>
 
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-            
-            <StoreBlock 
-                city="смт. Калинівка"
-                address="Центральна вулиця, 33"
-                schedule="Пн-Нд: 09:00 - 21:00"
-                mapLink="https://maps.app.goo.gl/v3LJXi6aPgED2Mxm9"
-            />
 
-            <StoreBlock 
-                city="м. Вишневе"
-                address="вул. Лесі Українки, 66" 
-                schedule="Пн-Нд: 10:00 - 22:00"
-                mapLink="https://maps.app.goo.gl/Vu4uAJ5qUJdeanJq5"
-            />
-
-        </SimpleGrid>
       </Box>
 
       

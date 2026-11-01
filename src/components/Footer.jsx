@@ -150,7 +150,7 @@ function Footer() {
               </Text>
               <Stack direction="row" spacing={4}>
                 <SocialBtn icon={<FaTelegram />} href="https://t.me/Manager_Smoke1" />
-                <SocialBtn icon={<FaInstagram />} href="https://www.instagram.com/smoke_house.vyshneve/" />
+                <SocialBtn icon={<FaInstagram />} href="https://www.instagram.com/smokehousevape.com.ua/" />
                 <SocialBtn icon={<FaTiktok />} href="https://www.tiktok.com/@housee.shop" />
               </Stack>
             </Stack>
@@ -198,21 +198,7 @@ function Footer() {
                 </Link>
               </Flex>
 
-              {/* Магазин 1 */}
-              <Flex align="start" gap={3}>
-                <Icon as={FiMapPin} color="#FF0080" mt={1} />
-                <Text color="gray.400">
-                  смт. Калинівка,<br /> Центральна вулиця, 33
-                </Text>
-              </Flex>
-
-              {/* Магазин 2 */}
-              <Flex align="start" gap={3}>
-                <Icon as={FiMapPin} color="#FF0080" mt={1} />
-                <Text color="gray.400">
-                  м. Вишневе,<br /> вул. Лесі Українки, 66
-                </Text>
-              </Flex>
+            
             </Stack>
           </GridItem>
 
