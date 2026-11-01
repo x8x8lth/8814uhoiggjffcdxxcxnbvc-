@@ -1,0 +1,67 @@
+import React from 'react'
+import { Box, Container, Heading, Text, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react'
+
+function OfferPage() {
+  return (
+    <Container maxW="container.md" py={10}>
+      <Heading size="xl" mb={6} textTransform="uppercase" textAlign="center">Публічна оферта</Heading>
+      <Text color="gray.500" mb={8} textAlign="center">
+        Ця Публічна оферта (далі — «Оферта») є офіційною пропозицією інтернет‑магазину / вейп‑шопу Smoke House (далі — «Продавець») укласти договір купівлі‑продажу товарів дистанційним способом з будь‑якою дієздатною фізичною особою (далі — «Покупець») відповідно до чинного законодавства України.
+      </Text>
+
+      <Box border="2px solid black" borderRadius="24px" overflow="hidden" bg="white">
+        <Accordion allowToggle defaultIndex={[0]}>
+          
+          <OfferItem title="1. Загальні положення">
+            {/* 👇 Тепер кожен пункт це окремий Text */}
+            <Text mb={2}>1.1. Відповідно до статей 633, 641, 642 Цивільного кодексу України, дана Оферта є публічним договором.</Text>
+            <Text mb={2}>1.2. Факт оформлення замовлення на сайті, у соціальних мережах або месенджерах Продавця означає повне та безумовне прийняття умов цієї Оферти (акцепт).</Text>
+            <Text>1.3. Продавець здійснює роздрібну торгівлю товарами для вейпінгу відповідно до законодавства України.</Text>
+          </OfferItem>
+
+          <OfferItem title="2. Предмет договору">
+            <Text mb={2}>2.1. Продавець зобов’язується передати у власність Покупця товари (вейп‑пристрої, комплектуючі, ароматизатори, рідини тощо), а Покупець зобов’язується прийняти та оплатити такі товари.</Text>
+            <Text>2.2. Асортимент, ціни та характеристики товарів вказуються у відповідних розділах сайту або сторінках Продавця.</Text>
+          </OfferItem>
+
+          <OfferItem title="3. Оформлення замовлення">
+            <Text mb={2}>3.1. Замовлення оформлюється Покупцем самостійно через сайт, соціальні мережі або месенджери.</Text>
+            <Text mb={2}>3.2. Покупець зобов’язується надати достовірну інформацію, необхідну для виконання замовлення.</Text>
+            <Text>3.3. Продавець має право відмовити у виконанні замовлення у разі відсутності товару або надання недостовірних даних.</Text>
+          </OfferItem>
+
+          <OfferItem title="4. Ціна та порядок оплати">
+            <Text mb={2}>4.1. Ціни на товари зазначаються у національній валюті України — гривні.</Text>
+            <Text mb={2}>4.2. Оплата здійснюється способами, доступними на момент оформлення замовлення (передплата, післяплата тощо).</Text>
+            <Text>4.3. Продавець має право змінювати ціни в односторонньому порядку до моменту підтвердження замовлення.</Text>
+          </OfferItem>
+
+          <OfferItem title="5. Доставка товару">
+            <Text mb={2}>5.1. Доставка здійснюється по території України службами доставки.</Text>
+            <Text mb={2}>5.2. Терміни та вартість доставки залежать від обраного способу доставки та тарифів перевізника.</Text>
+            <Text>5.3. Ризик випадкової втрати або пошкодження товару переходить до Покупця з моменту передачі товару перевізнику.</Text>
+          </OfferItem>
+          
+        </Accordion>
+      </Box>
+    </Container>
+  )
+}
+
+const OfferItem = ({ title, children }) => (
+  <AccordionItem border="none" borderBottom="1px solid #eee">
+    <h2>
+      <AccordionButton _expanded={{ bg: 'black', color: 'white' }} py={4} _hover={{ bg: 'gray.100' }}>
+        <Box flex="1" textAlign="left" fontWeight="bold">
+          {title}
+        </Box>
+        <AccordionIcon />
+      </AccordionButton>
+    </h2>
+    <AccordionPanel pb={4} lineHeight="1.6" color="gray.600">
+      {children}
+    </AccordionPanel>
+  </AccordionItem>
+)
+
+export default OfferPage
