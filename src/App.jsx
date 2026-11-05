@@ -1,12 +1,13 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Box } from '@chakra-ui/react'
+import { Analytics } from '@vercel/analytics/react' // 👈 Додано імпорт аналітики
 
 // Імпорт компонентів
 import Header from './components/Header'
 import AgeVerificationModal from './components/AgeVerificationModal'
 import Footer from './components/Footer' 
-import ScrollToTop from './components/ScrollToTop' // 👈 Додали імпорт модуля
+import ScrollToTop from './components/ScrollToTop'
 
 // Імпорт сторінок
 import HomePage from './pages/HomePage'
@@ -25,7 +26,7 @@ import ReviewsPage from './pages/ReviewsPage'
 function App() {
   return (
     <Box minH="100vh" display="flex" flexDirection="column">
-      {/* 👇 ДОДАНО МОДУЛЬ ScrollToTop (працює глобально для всіх сторінок) */}
+      {/* Модуль ScrollToTop (працює глобально для всіх сторінок) */}
       <ScrollToTop />
       
       {/* Перевірка віку */}
@@ -53,6 +54,9 @@ function App() {
       </Box>
 
       <Footer />
+      
+      {/* 👇 ДОДАНО КОМПОНЕНТ АНАЛІТИКИ (не впливає на візуал, просто збирає стату) */}
+      <Analytics />
     </Box>
   )
 }
