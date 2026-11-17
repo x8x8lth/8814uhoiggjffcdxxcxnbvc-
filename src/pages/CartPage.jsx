@@ -11,7 +11,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext' 
 import { searchCity, getWarehouses } from '../novaPoshta'
-import { doc, updateDoc, increment } from "firebase/firestore" 
+// 👇 ДОДАНО: collection, addDoc, serverTimestamp
+import { doc, updateDoc, increment, collection, addDoc, serverTimestamp } from "firebase/firestore" 
 import { db } from '../firebase'
 
 function CartPage() {
@@ -102,10 +103,47 @@ function CartPage() {
       return
     }
 
+    // 👇 ЗБЕРЕЖЕННЯ ЗАМОВЛЕННЯ В FIREBASE
+    try {
+      await addDoc(collection(db, "orders"), {
+        customer: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          middleName: formData.middleName,
+          phone: formData.phone,
+          telegram: formData.telegram,
+          email: formData.email
+        },
+        shipping: {
+          city: formData.cityName,
+          department: formData.department
+        },
+        payment: formData.payment,
+        comment: formData.comment,
+        items: cart.map(item => ({
+          id: item.originalId || item.id,
+          name: item.fullName ? item.fullName : (item.flavor ? `${item.name} (${item.flavor})` : item.name),
+          price: item.price,
+          quantity: item.quantity || 1,
+          options: item.selectedOptions || []
+        })),
+        totalPrice: totalPrice,
+        discount: discount,
+        finalPrice: finalPrice,
+        status: "new",
+        userId: currentUser ? currentUser.uid : "guest",
+        createdAt: serverTimestamp()
+      });
+      console.log("Замовлення успішно збережено в Firebase");
+    } catch (fbError) {
+      console.error("Помилка запису в Firebase:", fbError);
+      // Якщо база впала (наприклад через ліміти), замовлення все одно полетить у ТГ нижче
+    }
+
     const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_TOKEN;
     const CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
-const cartItemsText = cart.map(i => {
+    const cartItemsText = cart.map(i => {
         let optionsText = '';
         if (i.selectedOptions && i.selectedOptions.length > 0) {
             optionsText = `\n    └ ➕ ${i.selectedOptions.map(o => o.name).join(', ')}`;
@@ -335,14 +373,14 @@ ${cartItemsText}
                             />
                         </Flex>
                         <Text fontSize="sm" color="gray.500">Списати {Math.min(userBalance, totalPrice)} балів?</Text>
-                        {usePoints && <Text fontSize="xs" color="red.400" mt={1}>* При списанні балів нові бали за це замовлення не нараховуються.</Text>}
+                        {usePoints && <Text fontSize="xs" color="red.400" mt={1}>При списанні балів нові бали за це замовлення не нараховуються.</Text>}
                     </Box>
                 )}
 
                 <VStack spacing={2} align="stretch">
                     <Flex justify="space-between"><Text color="gray.500">Сума:</Text><Text fontWeight="bold">{totalPrice} ₴</Text></Flex>
                     {usePoints && discount > 0 && (
-                        <Flex justify="space-between" color="#FF0080"><Text>Знижка балами:</Text><Text fontWeight="bold">- {discount} ₴</Text></Flex>
+                        <Flex justify="space-between" color="#FF0080"><Text>Знижка балами:</Text><Text fontWeight="bold">{discount} ₴</Text></Flex>
                     )}
                     
                     {currentUser && (
